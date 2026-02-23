@@ -1,22 +1,29 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 async function fetchApi(endpoint, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.error || 'Request failed');
+    if (!response.ok) {
+      throw new Error(data.error || 'Request failed');
+    }
+
+    return data;
+  } catch (error) {
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+      throw new Error('Cannot connect to server. Make sure the backend is running on port 5001.');
+    }
+    throw error;
   }
-
-  return data;
 }
 
 export async function getHealth() {

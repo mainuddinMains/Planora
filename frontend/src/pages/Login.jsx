@@ -25,18 +25,22 @@ function Login() {
 
     try {
       if (isLogin) {
-        await login(formData.email, formData.password);
+        console.log('Attempting login with:', formData.email);
+        const result = await login(formData.email, formData.password);
+        console.log('Login result:', result);
       } else {
         if (!formData.name.trim()) {
           setError('Name is required');
           setLoading(false);
           return;
         }
-        await register(formData.email, formData.password, formData.name);
+        const result = await register(formData.email, formData.password, formData.name);
+        console.log('Register result:', result);
       }
       navigate('/');
     } catch (err) {
-      setError(err.message);
+      console.error('Auth error:', err);
+      setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
