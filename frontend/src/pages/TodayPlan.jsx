@@ -1,10 +1,199 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks';
+import { getTodayRecommendations, updateTask } from '../api';
 
 function TodayPlan() {
+  const { user } = useAuth();
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, []);
+
+  const fetchRecommendations = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getTodayRecommendations(15);
+      setRecommendations(data.recommendations || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleComplete = async (taskId, isCompleted) => {
+    try {
+      await updateTask(taskId, { is_completed: isCompleted });
+      setRecommendations(prev =>
+        prev.map(task =>
+          task.id === taskId ? { ...task, is_completed: isCompleted } : task
+        )
+      );
+      setMessage(isCompleted ? 'Task completed! Great job!' : 'Task marked as incomplete');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setError('Failed to update task: ' + err.message);
+    }
+  };
+
+  const formatDueDate = (dateString) => {
+    if (!dateString) return { text: 'No due date', urgent: false };
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = date - now;
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffMs < 0) {
+      return { text: 'Overdue', urgent: true };
+    }
+    if (diffHours <= 6) {
+      return { text: 'Due soon', urgent: true };
+    }
+    if (diffHours <= 24) {
+      return { text: 'Due today', urgent: false };
+    }
+    return {
+      text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      urgent: false
+    };
+  };
+
+  const getPriorityClass = (priority) => {
+    switch (priority) {
+      case 'high': return 'priority-high';
+      case 'low': return 'priority-low';
+      default: return 'priority-medium';
+    }
+  };
+
+  const getScoreLabel = (score) => {
+    if (score >= 12) return 'Critical';
+    if (score >= 8) return 'High Priority';
+    if (score >= 5) return 'Medium Priority';
+    return 'Low Priority';
+  };
+
+  const getTotalDuration = () => {
+    return recommendations
+      .filter(t => !t.is_completed)
+      .reduce((sum, t) => sum + (t.duration || 0), 0);
+  };
+
+  const completedCount = recommendations.filter(t => t.is_completed).length;
+  const pendingCount = recommendations.filter(t => !t.is_completed).length;
+
+  if (loading) {
+    return <div className="page">Generating your plan...</div>;
+  }
+
   return (
-    <div className="page">
-      <h1>Today's Plan</h1>
-      <p>Today's plan view placeholder</p>
+    <div className="page today-plan">
+      <div className="plan-header">
+        <div>
+          <h1>Today's Plan</h1>
+          <p>Hello {user?.name || 'Student'}, here's your prioritized task list</p>
+        </div>
+        <button onClick={fetchRecommendations} className="btn-secondary">
+          Refresh
+        </button>
+      </div>
+
+      {message && <div className="success-message">{message}</div>}
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="plan-stats">
+        <div className="stat-card">
+          <span className="stat-value">{pendingCount}</span>
+          <span className="stat-label">Tasks Pending</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">{completedCount}</span>
+          <span className="stat-label">Completed Today</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-value">
+            {getTotalDuration() >= 60
+              ? `${Math.round(getTotalDuration() / 60)}h ${getTotalDuration() % 60}m`
+              : `${getTotalDuration()}m`
+            }
+          </span>
+          <span className="stat-label">Estimated Time</span>
+        </div>
+      </div>
+
+      <div className="recommendations-list">
+        <h2>Recommended Task Order</h2>
+        <p className="recommendation-info">
+          Tasks are ranked by priority, urgency, and duration to help you focus on what matters most.
+        </p>
+
+        {recommendations.length === 0 ? (
+          <div className="empty-state">
+            <p>No pending tasks! You're all caught up.</p>
+            <p>Add tasks from the Dashboard to get personalized recommendations.</p>
+          </div>
+        ) : (
+          recommendations.map((task, index) => {
+            const dueInfo = formatDueDate(task.due_date);
+
+            return (
+              <div
+                key={task.id}
+                className={`recommendation-card ${task.is_completed ? 'completed' : ''}`}
+              >
+                <div className="recommendation-rank">
+                  <span className="rank-number">{index + 1}</span>
+                </div>
+
+                <div className="recommendation-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={task.is_completed}
+                    onChange={() => handleComplete(task.id, !task.is_completed)}
+                  />
+                </div>
+
+                <div className="recommendation-content">
+                  <div className="recommendation-header">
+                    <h3 className="recommendation-title">{task.title}</h3>
+                    <span className={`task-priority ${getPriorityClass(task.priority)}`}>
+                      {task.priority}
+                    </span>
+                  </div>
+
+                  <div className="recommendation-meta">
+                    {task.course_name && (
+                      <span
+                        className="task-course"
+                        style={{ backgroundColor: task.course_color || '#4a90a4' }}
+                      >
+                        {task.course_name}
+                      </span>
+                    )}
+                    <span className={`task-due ${dueInfo.urgent ? 'urgent' : ''}`}>
+                      {dueInfo.text}
+                    </span>
+                    {task.duration && (
+                      <span className="task-duration">{task.duration} min</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="recommendation-score">
+                  <span className="score-value">{task.score?.toFixed(1)}</span>
+                  <span className="score-label">{getScoreLabel(task.score)}</span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

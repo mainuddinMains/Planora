@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const courseRoutes = require('./routes/courses');
+const recommendationRoutes = require('./routes/recommendations');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

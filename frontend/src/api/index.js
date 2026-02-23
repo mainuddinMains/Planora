@@ -107,6 +107,14 @@ export async function deleteCourse(id) {
   });
 }
 
+export async function getTodayRecommendations(limit = 10) {
+  return fetchApi(`/recommendations/today?limit=${limit}`);
+}
+
+export async function getWorkload(startDate, endDate) {
+  return fetchApi(`/recommendations/workload?startDate=${startDate}&endDate=${endDate}`);
+}
+
 export default {
   getHealth,
   register,
@@ -122,4 +130,6 @@ export default {
   createCourse,
   updateCourse,
   deleteCourse,
+  getTodayRecommendations,
+  getWorkload,
 };
