@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { NotificationBell } from './components';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
@@ -27,13 +28,18 @@ function NavBar() {
 
   return (
     <nav>
-      <Link to="/">Dashboard</Link> |{' '}
-      <Link to="/tasks">Tasks</Link> |{' '}
-      <Link to="/weekly">Weekly Calendar</Link> |{' '}
-      <Link to="/today">Today Plan</Link> |{' '}
-      <span className="user-info">
-        {user.name} | <button onClick={handleLogout} className="btn-link">Logout</button>
-      </span>
+      <div className="nav-links">
+        <Link to="/">Dashboard</Link>
+        <Link to="/tasks">Tasks</Link>
+        <Link to="/weekly">Weekly</Link>
+        <Link to="/today">Today</Link>
+      </div>
+      <div className="nav-right">
+        <NotificationBell />
+        <span className="user-info">
+          {user.name} | <button onClick={handleLogout} className="btn-link">Logout</button>
+        </span>
+      </div>
     </nav>
   );
 }

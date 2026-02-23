@@ -115,6 +115,26 @@ export async function getWorkload(startDate, endDate) {
   return fetchApi(`/recommendations/workload?startDate=${startDate}&endDate=${endDate}`);
 }
 
+export async function getNotifications(unreadOnly = false) {
+  return fetchApi(`/notifications${unreadOnly ? '?unreadOnly=true' : ''}`);
+}
+
+export async function getUnreadCount() {
+  return fetchApi('/notifications/unread-count');
+}
+
+export async function markNotificationRead(id) {
+  return fetchApi(`/notifications/${id}/read`, { method: 'PUT' });
+}
+
+export async function markAllNotificationsRead() {
+  return fetchApi('/notifications/read-all', { method: 'PUT' });
+}
+
+export async function deleteNotification(id) {
+  return fetchApi(`/notifications/${id}`, { method: 'DELETE' });
+}
+
 export default {
   getHealth,
   register,
@@ -132,4 +152,9 @@ export default {
   deleteCourse,
   getTodayRecommendations,
   getWorkload,
+  getNotifications,
+  getUnreadCount,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification,
 };
