@@ -48,10 +48,78 @@ export async function getCurrentUser() {
   return fetchApi('/auth/me');
 }
 
+export async function getTasks(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.completed !== undefined) params.append('completed', filters.completed);
+  if (filters.priority) params.append('priority', filters.priority);
+  if (filters.course_id) params.append('course_id', filters.course_id);
+  if (filters.search) params.append('search', filters.search);
+  
+  const queryString = params.toString();
+  return fetchApi(`/tasks${queryString ? `?${queryString}` : ''}`);
+}
+
+export async function getTask(id) {
+  return fetchApi(`/tasks/${id}`);
+}
+
+export async function createTask(taskData) {
+  return fetchApi('/tasks', {
+    method: 'POST',
+    body: JSON.stringify(taskData),
+  });
+}
+
+export async function updateTask(id, updates) {
+  return fetchApi(`/tasks/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+}
+
+export async function deleteTask(id) {
+  return fetchApi(`/tasks/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getCourses() {
+  return fetchApi('/courses');
+}
+
+export async function createCourse(courseData) {
+  return fetchApi('/courses', {
+    method: 'POST',
+    body: JSON.stringify(courseData),
+  });
+}
+
+export async function updateCourse(id, updates) {
+  return fetchApi(`/courses/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+}
+
+export async function deleteCourse(id) {
+  return fetchApi(`/courses/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 export default {
   getHealth,
   register,
   login,
   logout,
   getCurrentUser,
+  getTasks,
+  getTask,
+  createTask,
+  updateTask,
+  deleteTask,
+  getCourses,
+  createCourse,
+  updateCourse,
+  deleteCourse,
 };

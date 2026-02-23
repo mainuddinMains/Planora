@@ -1,0 +1,81 @@
+import React from 'react';
+
+function TaskItem({ task, onToggle, onEdit, onDelete }) {
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    if (date.toDateString() === tomorrow.toDateString()) {
+      return `Tomorrow at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  const getPriorityClass = (priority) => {
+    switch (priority) {
+      case 'high': return 'priority-high';
+      case 'low': return 'priority-low';
+      default: return 'priority-medium';
+    }
+  };
+
+  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.is_completed;
+
+  return (
+    <div className={`task-item ${task.is_completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}>
+      <div className="task-checkbox">
+        <input
+          type="checkbox"
+          checked={task.is_completed}
+          onChange={() => onToggle(task.id, !task.is_completed)}
+        />
+      </div>
+
+      <div className="task-content">
+        <div className="task-header">
+          <h4 className="task-title">{task.title}</h4>
+          <span className={`task-priority ${getPriorityClass(task.priority)}`}>
+            {task.priority}
+          </span>
+        </div>
+
+        {task.description && (
+          <p className="task-description">{task.description}</p>
+        )}
+
+        <div className="task-meta">
+          {task.course_name && (
+            <span className="task-course" style={{ backgroundColor: task.course_color || '#4a90a4' }}>
+              {task.course_name}
+            </span>
+          )}
+          {task.due_date && (
+            <span className={`task-due ${isOverdue ? 'overdue' : ''}`}>
+              {formatDate(task.due_date)}
+            </span>
+          )}
+          {task.duration && (
+            <span className="task-duration">{task.duration} min</span>
+          )}
+        </div>
+      </div>
+
+      <div className="task-actions">
+        <button onClick={() => onEdit(task)} className="btn-icon" title="Edit">
+          ✏️
+        </button>
+        <button onClick={() => onDelete(task.id)} className="btn-icon" title="Delete">
+          🗑️
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default TaskItem;

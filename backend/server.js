@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth');
+const taskRoutes = require('./routes/tasks');
+const courseRoutes = require('./routes/courses');
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/courses', courseRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
