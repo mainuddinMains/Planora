@@ -65,3 +65,21 @@ CREATE TABLE IF NOT EXISTS notifications (
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+
+-- Email sources per user (Outlook IMAP)
+CREATE TABLE IF NOT EXISTS email_sources (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider VARCHAR(50) NOT NULL DEFAULT 'outlook',
+  host VARCHAR(255) NOT NULL DEFAULT 'outlook.office365.com',
+  port INTEGER NOT NULL DEFAULT 993,
+  tls BOOLEAN DEFAULT TRUE,
+  username VARCHAR(255) NOT NULL,
+  password_encrypted BYTEA,
+  oauth_token TEXT,
+  last_sync_at TIMESTAMP WITH TIME ZONE,
+  enabled BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_email_sources_user ON email_sources(user_id);

@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import WeeklyCalendar from './pages/WeeklyCalendar';
 import TodayPlan from './pages/TodayPlan';
+import EmailSync from './pages/EmailSync';
 import './App.css';
 
 function PrivateRoute({ children }) {
@@ -33,6 +34,7 @@ function NavBar() {
         <Link to="/tasks">Tasks</Link>
         <Link to="/weekly">Weekly</Link>
         <Link to="/today">Today</Link>
+        <Link to="/email-sync">Email Sync</Link>
       </div>
       <div className="nav-right">
         <NotificationBell />
@@ -63,6 +65,9 @@ function AppRoutes() {
         } />
         <Route path="/today" element={
           <PrivateRoute><TodayPlan /></PrivateRoute>
+        } />
+        <Route path="/email-sync" element={
+          <PrivateRoute><EmailSync /></PrivateRoute>
         } />
       </Routes>
     </>

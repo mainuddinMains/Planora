@@ -39,6 +39,8 @@ export async function register(email, password, name) {
 }
 
 export async function login(email, password) {
+  console.log('API URL being used:', API_BASE_URL);
+  console.log('Full URL:', `${API_BASE_URL}/auth/login`);
   return fetchApi('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
@@ -61,7 +63,7 @@ export async function getTasks(filters = {}) {
   if (filters.priority) params.append('priority', filters.priority);
   if (filters.course_id) params.append('course_id', filters.course_id);
   if (filters.search) params.append('search', filters.search);
-  
+
   const queryString = params.toString();
   return fetchApi(`/tasks${queryString ? `?${queryString}` : ''}`);
 }
@@ -142,6 +144,37 @@ export async function deleteNotification(id) {
   return fetchApi(`/notifications/${id}`, { method: 'DELETE' });
 }
 
+export async function getEmailSources() {
+  console.log('API_BASE_URL:', API_BASE_URL);
+  return fetchApi('/email_sources');
+}
+
+export async function createEmailSource(data) {
+  return fetchApi('/email_sources', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateEmailSource(id, data) {
+  return fetchApi(`/email_sources/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteEmailSource(id) {
+  return fetchApi(`/email_sources/${id}`, { method: 'DELETE' });
+}
+
+export async function triggerEmailSync() {
+  return fetchApi('/email/now', { method: 'POST' });
+}
+
+export async function getEmailSyncStatus() {
+  return fetchApi('/email/status');
+}
+
 export default {
   getHealth,
   register,
@@ -164,4 +197,10 @@ export default {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
+  getEmailSources,
+  createEmailSource,
+  updateEmailSource,
+  deleteEmailSource,
+  triggerEmailSync,
+  getEmailSyncStatus,
 };

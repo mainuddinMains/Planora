@@ -9,14 +9,55 @@ const recommendationRoutes = require('./routes/recommendations');
 const notificationRoutes = require('./routes/notifications');
 const { startNotificationJobs } = require('./jobs/notificationJob');
 
+let emailSourceRoutes = null;
+let emailSyncRoutes = null;
+let startEmailSyncJobs = null;
+
+try {
+  emailSourceRoutes = require('./routes/emailSources');
+  emailSyncRoutes = require('./routes/emailSync');
+  ({ startEmailSyncJobs } = require('./jobs/emailSyncJob'));
+} catch (error) {
+  console.warn(
+    `[EmailSync] Optional email sync modules disabled: ${error.message}`
+  );
+}
+
 const app = express();
 
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
-    : 'http://localhost:3000',
-  credentials: true
-}));
+const devOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const envOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? [process.env.FRONTEND_URL].filter(Boolean)
+    : [...new Set([...devOrigins, ...envOrigins])];
+
+const devIpOriginRegex = /^http:\/\/(\d{1,3}\.){3}\d{1,3}:3000$/;
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const isAllowedDevIp =
+        process.env.NODE_ENV !== 'production' && devIpOriginRegex.test(origin);
+
+      if (allowedOrigins.includes(origin) || isAllowedDevIp) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -30,16 +71,24 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+if (emailSourceRoutes && emailSyncRoutes) {
+  app.use('/api/email_sources', emailSourceRoutes);
+  app.use('/api/email', emailSyncRoutes);
+}
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  
+
   if (process.env.NODE_ENV !== 'test') {
     startNotificationJobs();
+    if (startEmailSyncJobs) {
+      startEmailSyncJobs();
+    }
   }
 });

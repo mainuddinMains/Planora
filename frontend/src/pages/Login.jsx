@@ -6,8 +6,8 @@ function Login() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: 'mains.k.r21@gmail.com',
+    password: 'test123',
     name: ''
   });
   const [error, setError] = useState('');
@@ -23,11 +23,15 @@ function Login() {
     setError('');
     setLoading(true);
 
+    console.log('Submitting login form...');
+
     try {
       if (isLogin) {
         console.log('Attempting login with:', formData.email);
         const result = await login(formData.email, formData.password);
         console.log('Login result:', result);
+        alert('Login successful! Redirecting...');
+        navigate('/');
       } else {
         if (!formData.name.trim()) {
           setError('Name is required');
@@ -36,10 +40,12 @@ function Login() {
         }
         const result = await register(formData.email, formData.password, formData.name);
         console.log('Register result:', result);
+        alert('Registration successful! Redirecting...');
+        navigate('/');
       }
-      navigate('/');
     } catch (err) {
       console.error('Auth error:', err);
+      alert('Error: ' + (err.message || 'An error occurred'));
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
