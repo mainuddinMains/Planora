@@ -85,6 +85,9 @@ async function syncForSource(source) {
     return;
   }
 
+  console.log(`[EmailSync] Connecting to ${source.host} as ${source.username}...`);
+  console.log(`[EmailSync] Password length: ${password ? password.length : 0}`);
+  
   let client;
   try {
     client = new ImapFlow({
@@ -94,72 +97,113 @@ async function syncForSource(source) {
       auth: {
         user: source.username,
         pass: password
-      }
+      },
+      logger: console
     });
 
+    console.log(`[EmailSync] Attempting to connect...`);
     await client.connect();
+    console.log(`[EmailSync] Connected successfully!`);
 
     const mailbox = await client.openBox('INBOX');
+    console.log(`[EmailSync] Opened INBOX`);
     
-    const since = source.last_sync_at 
-      ? new Date(source.last_sync_at) 
-      : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-    const searchCriteria = ['SINCE', since.toISOString()];
+    // Search for messages from last 30 days
+    const sinceDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const searchCriteria = ['SINCE', sinceDate.toISOString().split('T')[0]];
+    console.log(`[EmailSync] Searching with criteria:`, searchCriteria);
     
-    const messages = await client.search(searchCriteria, { envelope: true, source: true });
+    const messages = await client.search(searchCriteria, { envelope: true });
+    console.log(`[EmailSync] Found ${messages.length} messages`);
     
-    console.log(`Found ${messages.length} new messages for user ${source.user_id}`);
-
     let tasksCreated = 0;
 
-    for (const msg of messages.slice(-50)) {
+    // Process ALL recent messages - import everything first
+    for (const msg of messages.slice(-30)) {
       try {
-        const parsed = await simpleParser(msg.source);
-        const subject = parsed.subject || '';
+        // Fetch the full message
+        const msgData = await client.fetch(msg.uid, { envelope: true, source: true });
+        const msgEnvelope = Array.isArray(msgData) ? msgData[0] : msgData;
+        
+        if (!msgEnvelope || !msgEnvelope.envelope) {
+          continue;
+        }
+        
+        const subject = msgEnvelope.envelope.subject || '(No Subject)';
+        const from = msgEnvelope.envelope.from?.[0]?.address || 'Unknown';
+        
+        console.log(`[EmailSync] Processing: ${subject} from ${from}`);
+        
+        // Get the source for parsing
+        const msgSource = await client.fetch(msg.uid, { source: true });
+        const sourceData = Array.isArray(msgSource) ? msgSource[0] : msgSource;
+        const parsed = await simpleParser(sourceData.source);
+        
         const text = (parsed.text || '') + ' ' + (parsed.html || '');
         const combinedText = subject + ' ' + text;
 
         const data = parseAssignmentFromText(combinedText);
-
-        if (!data.title || data.title === 'Assignment') {
-          if (!subject.toLowerCase().includes('homework') && 
-              !subject.toLowerCase().includes('assignment') &&
-              !subject.toLowerCase().includes('due') &&
-              !subject.toLowerCase().includes('quiz') &&
-              !subject.toLowerCase().includes('exam') &&
-              !subject.toLowerCase().includes('project')) {
-            continue;
-          }
+        
+        // If no title found, use subject
+        const finalTitle = data.title || subject;
+        
+        // Determine if it's an Assignment, Announcement, or general email
+        let tagName = 'Email';
+        const subjectLower = subject.toLowerCase();
+        
+        // Check for announcements
+        if (subjectLower.includes('announcement') || 
+            subjectLower.includes('notice') ||
+            subjectLower.includes('update from') ||
+            subjectLower.includes('reminder') ||
+            subjectLower.includes('information')) {
+          tagName = 'Announcement';
+        }
+        
+        // Check for assignments
+        if (subjectLower.includes('homework') || 
+            subjectLower.includes('assignment') ||
+            subjectLower.includes('due') ||
+            subjectLower.includes('quiz') ||
+            subjectLower.includes('exam') ||
+            subjectLower.includes('project') ||
+            subjectLower.includes('lab') ||
+            subjectLower.includes('paper') ||
+            subjectLower.includes('essay') ||
+            subjectLower.includes('test')) {
+          tagName = 'Assignment';
         }
 
         const courseId = await findOrCreateCourse(source.user_id, data.courseCode);
         
         const taskResult = await db.query(
-          `INSERT INTO tasks (user_id, course_id, title, due_date, priority)
-           VALUES ($1, $2, $3, $4, $5)
+          `INSERT INTO tasks (user_id, course_id, title, description, due_date, priority)
+           VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING id`,
-          [source.user_id, courseId, data.title, data.due, 'medium']
+          [source.user_id, courseId, finalTitle, `From: ${from}`, 
+           data.due, 
+           tagName === 'Assignment' ? 'high' : (tagName === 'Announcement' ? 'medium' : 'low')]
         );
 
         const taskId = taskResult.rows[0].id;
-        const tagId = await findOrCreateTag(source.user_id, 'Assignment');
+        const tagId = await findOrCreateTag(source.user_id, tagName);
         
         await db.query(
           'INSERT INTO task_tags (task_id, tag_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
           [taskId, tagId]
         );
-
+        
+        console.log(`[EmailSync] Created: ${finalTitle} (${tagName})`);
         tasksCreated++;
       } catch (parseErr) {
-        console.error('Error parsing email:', parseErr.message);
+        console.error('[EmailSync] Error:', parseErr.message);
       }
     }
 
-    console.log(`Created ${tasksCreated} tasks for user ${source.user_id}`);
+    console.log(`[EmailSync] Total created: ${tasksCreated} tasks for user ${source.user_id}`);
 
   } catch (err) {
-    console.error('Email sync error for source', source.id, ':', err.message);
+    console.error('[EmailSync] Error:', err.message);
   } finally {
     if (client) {
       try {

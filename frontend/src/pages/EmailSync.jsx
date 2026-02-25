@@ -206,12 +206,22 @@ function EmailSync() {
         <div className="info-box">
           <ul>
             <li>Enter your Outlook/Office 365 email credentials</li>
-            <li>For Gmail, use an <strong>App Password</strong> instead of your regular password</li>
+            <li>For <strong>Outlook/Office 365</strong>: If you have 2FA enabled, you need an <strong>App Password</strong></li>
+            <li>For <strong>Gmail</strong>, use an <strong>App Password</strong> instead of your regular password</li>
             <li>Click "Sync Now" or wait for automatic sync every 15 minutes</li>
             <li>Planora will scan your inbox for assignment-related emails</li>
             <li>Tasks will be automatically created with course, title, and due date</li>
-            <li>Look for the "Assignment" tag on imported tasks</li>
+            <li>Look for the "Assignment" or "Announcement" tag on imported tasks</li>
           </ul>
+          <div className="info-box" style={{ marginTop: '1rem', background: '#fef3c7', borderColor: '#f59e0b' }}>
+            <strong>How to create an App Password for Outlook:</strong>
+            <ol style={{ marginTop: '0.5rem', paddingLeft: '1.25rem' }}>
+              <li>Go to <a href="https://account.microsoft.com/security" target="_blank" rel="noopener noreferrer">Microsoft Account Security</a></li>
+              <li>Enable Two-Factor Authentication</li>
+              <li>Go to "App passwords" and create a new one</li>
+              <li>Use that password in Planora</li>
+            </ol>
+          </div>
         </div>
       </div>
     </div>
