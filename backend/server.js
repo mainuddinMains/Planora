@@ -11,11 +11,13 @@ const { startNotificationJobs } = require('./jobs/notificationJob');
 
 let emailSourceRoutes = null;
 let emailSyncRoutes = null;
+let microsoftAuthRoutes = null;
 let startEmailSyncJobs = null;
 
 try {
   emailSourceRoutes = require('./routes/emailSources');
   emailSyncRoutes = require('./routes/emailSync');
+  microsoftAuthRoutes = require('./routes/microsoftAuth');
   ({ startEmailSyncJobs } = require('./jobs/emailSyncJob'));
 } catch (error) {
   console.warn(
@@ -74,6 +76,10 @@ app.use('/api/notifications', notificationRoutes);
 if (emailSourceRoutes && emailSyncRoutes) {
   app.use('/api/email_sources', emailSourceRoutes);
   app.use('/api/email', emailSyncRoutes);
+}
+
+if (microsoftAuthRoutes) {
+  app.use('/api/microsoft', microsoftAuthRoutes);
 }
 
 app.use((err, req, res, next) => {
