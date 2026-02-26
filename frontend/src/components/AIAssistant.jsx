@@ -9,6 +9,8 @@ function AIAssistant({ isOpen, onClose }) {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -139,12 +141,36 @@ function AIAssistant({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const handleMinimize = () => {
+    setIsMinimized(true);
+    setIsMaximized(false);
+  };
+
+  const handleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    setIsMinimized(false);
+  };
+
+  if (isMinimized) {
+    return (
+      <button className="ai-toggle" onClick={() => setIsMinimized(false)} title="Open AI Assistant">
+        🤖
+      </button>
+    );
+  }
+
   return (
-    <div className="ai-assistant">
+    <div className={`ai-assistant ${isMaximized ? 'maximized' : ''}`}>
       <div className="ai-header">
         <span className="ai-icon">🤖</span>
         <span>AI Study Assistant</span>
-        <button className="ai-close" onClick={onClose}>×</button>
+        <div className="ai-controls">
+          <button className="ai-btn" onClick={handleMinimize} title="Minimize">−</button>
+          <button className="ai-btn" onClick={handleMaximize} title={isMaximized ? "Restore" : "Maximize"}>
+            {isMaximized ? '❐' : '□'}
+          </button>
+          <button className="ai-close" onClick={onClose}>×</button>
+        </div>
       </div>
       
       <div className="ai-messages">

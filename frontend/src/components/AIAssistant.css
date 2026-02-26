@@ -39,8 +39,8 @@
   font-size: 24px;
 }
 
-.ai-header span:first-child {
-  margin-right: auto;
+.ai-header span:nth-child(2) {
+  flex: 1;
 }
 
 .ai-close {
@@ -171,4 +171,34 @@
 .ai-toggle:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 30px rgba(102, 126, 234, 0.5);
+}
+
+.ai-assistant.maximized {
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  max-width: 900px;
+  max-height: 600px;
+}
+
+.ai-controls {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.ai-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 8px;
+  opacity: 0.8;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.ai-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
 }
