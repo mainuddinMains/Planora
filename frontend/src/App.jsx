@@ -54,6 +54,9 @@ function AppRoutes() {
       <NavBar />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/email-sync" element={
+          <PrivateRoute><EmailSync /></PrivateRoute>
+        } />
         <Route path="/" element={
           <PrivateRoute><Dashboard /></PrivateRoute>
         } />
@@ -65,9 +68,6 @@ function AppRoutes() {
         } />
         <Route path="/today" element={
           <PrivateRoute><TodayPlan /></PrivateRoute>
-        } />
-        <Route path="/email-sync" element={
-          <PrivateRoute><EmailSync /></PrivateRoute>
         } />
       </Routes>
     </>

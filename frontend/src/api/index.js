@@ -203,4 +203,27 @@ export default {
   deleteEmailSource,
   triggerEmailSync,
   getEmailSyncStatus,
+  getMicrosoftAuthUrl,
+  connectMicrosoftAccount,
+  getMicrosoftStatus,
+  disconnectMicrosoftAccount,
 };
+
+export async function getMicrosoftAuthUrl() {
+  return fetchApi('/microsoft/auth-url');
+}
+
+export async function connectMicrosoftAccount(code) {
+  return fetchApi('/microsoft/token', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function getMicrosoftStatus() {
+  return fetchApi('/microsoft/status');
+}
+
+export async function disconnectMicrosoftAccount() {
+  return fetchApi('/microsoft/disconnect', { method: 'POST' });
+}
