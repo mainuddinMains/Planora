@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTasks } from '../hooks/useTasks';
-import { TaskForm, TaskList } from '../components';
+import { TaskForm, TaskList, AIAssistant } from '../components';
 
 function Dashboard() {
   const { user } = useAuth();
@@ -9,6 +9,7 @@ function Dashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [message, setMessage] = useState('');
+  const [showAI, setShowAI] = useState(false);
 
   const handleAddTask = async (taskData) => {
     try {
@@ -106,6 +107,11 @@ function Dashboard() {
           onDelete={handleDeleteTask}
         />
       </div>
+
+      <button className="ai-toggle" onClick={() => setShowAI(true)} title="AI Assistant">
+        🤖
+      </button>
+      <AIAssistant isOpen={showAI} onClose={() => setShowAI(false)} />
     </div>
   );
 }
