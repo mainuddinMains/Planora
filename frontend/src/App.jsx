@@ -56,7 +56,6 @@ function NavBar() {
     <nav>
       <div className="nav-brand">
         <Link to="/">Planora</Link>
-        {user && <span className="welcome-text">Welcome, {user.name}</span>}
       </div>
       <div className="nav-links">
         <Link to="/">Dashboard</Link>
