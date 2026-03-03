@@ -19,7 +19,7 @@ function PrivateRoute({ children }) {
 }
 
 function NavBar() {
-  const { user, logout } = useAuth();
+  const { user, logout, showWelcome } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -127,10 +127,15 @@ function NavBar() {
 }
 
 function AppRoutes() {
-  const { user } = useAuth();
+  const { user, showWelcome } = useAuth();
 
   return (
     <>
+      {showWelcome && user && (
+        <div className="welcome-toast">
+          Welcome, {user.name}!
+        </div>
+      )}
       <NavBar />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
