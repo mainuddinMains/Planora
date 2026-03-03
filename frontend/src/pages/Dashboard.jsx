@@ -69,10 +69,7 @@ function Dashboard() {
   return (
     <div className="page dashboard">
       <div className="dashboard-header">
-        <div>
-          <h1>Dashboard</h1>
-          <p>Manage your tasks and stay organized</p>
-        </div>
+        <div></div>
         <button onClick={() => { setShowForm(!showForm); setEditingTask(null); }} className="btn-primary">
           {showForm ? 'Cancel' : '+ Add Task'}
         </button>
