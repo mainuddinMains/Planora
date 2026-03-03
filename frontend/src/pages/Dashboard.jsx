@@ -4,7 +4,6 @@ import { useTasks } from '../hooks/useTasks';
 import { TaskForm, TaskList, AIAssistant } from '../components';
 
 function Dashboard() {
-  const { user } = useAuth();
   const { tasks, loading, error, addTask, editTask, removeTask, toggleComplete } = useTasks();
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -70,10 +69,7 @@ function Dashboard() {
   return (
     <div className="page dashboard">
       <div className="dashboard-header">
-        <div>
-          <h1>Welcome, {user?.name || 'Student'}!</h1>
-          <p>Manage your tasks and stay organized</p>
-        </div>
+        <div></div>
         <button onClick={() => { setShowForm(!showForm); setEditingTask(null); }} className="btn-primary">
           {showForm ? 'Cancel' : '+ Add Task'}
         </button>
