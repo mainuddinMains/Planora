@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { NotificationBell } from './components';
@@ -20,9 +20,34 @@ function PrivateRoute({ children }) {
 
 function NavBar() {
   const { user, logout } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleChangePassword = () => {
+    setShowChangePassword(true);
+    setShowProfileMenu(false);
+  };
+
+  const handleSavePassword = () => {
+    alert('Password change functionality would connect to backend API');
+    setShowChangePassword(false);
+    setNewPassword('');
   };
 
   if (!user) return null;
@@ -41,12 +66,62 @@ function NavBar() {
         <Link to="/email-sync">Email Sync</Link>
       </div>
       <div className="nav-right">
-        <div className="profile-icon" title={user.name}>
-          {user.name.charAt(0).toUpperCase()}
-        </div>
         <NotificationBell />
-        <button onClick={handleLogout} className="btn-link">Logout</button>
+        <div className="profile-container" ref={profileRef}>
+          <div 
+            className="profile-icon" 
+            title={user.name}
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+          >
+            {user.name.charAt(0).toUpperCase()}
+          </div>
+          {showProfileMenu && (
+            <div className="profile-dropdown">
+              <div className="profile-info">
+                <div className="profile-avatar">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="profile-details">
+                  <strong>{user.name}</strong>
+                  <span>{user.email}</span>
+                </div>
+              </div>
+              <div className="profile-divider"></div>
+              <button className="profile-menu-item" onClick={handleChangePassword}>
+                Change Password
+              </button>
+              <button className="profile-menu-item" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {showChangePassword && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>Change Password</h2>
+            <div className="form-group">
+              <label>New Password</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+              />
+            </div>
+            <div className="modal-buttons">
+              <button className="btn-secondary" onClick={() => setShowChangePassword(false)}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleSavePassword}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
