@@ -41,6 +41,9 @@ function NavBar() {
         <Link to="/email-sync">Email Sync</Link>
       </div>
       <div className="nav-right">
+        <div className="profile-icon" title={user.name}>
+          {user.name.charAt(0).toUpperCase()}
+        </div>
         <NotificationBell />
         <button onClick={handleLogout} className="btn-link">Logout</button>
       </div>

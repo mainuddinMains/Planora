@@ -57,6 +57,19 @@ nav a:hover {
   gap: 1rem;
 }
 
+.profile-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  cursor: default;
+}
+
 .page {
   padding: 2rem;
   max-width: 1200px;
