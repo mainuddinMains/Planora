@@ -86,8 +86,64 @@ Planora/
 │   │   └── index.js              # React entry point
 │   └── package.json
 │
+├── docker-compose.yml            # Docker containers setup
+├── Dockerfile                    # Backend Docker image
+├── frontend/Dockerfile           # Frontend Docker image
 └── README.md
 ```
+
+## Code File Descriptions
+
+### Backend Files
+
+| File | Description |
+|------|-------------|
+| `server.js` | Express app entry point - starts the server, connects to DB, loads routes |
+| `db/index.js` | PostgreSQL connection pool using `pg` library |
+| `db/schema.sql` | SQL commands to create all database tables and indexes |
+| `middleware/auth.js` | Protects routes - verifies JWT tokens from cookies |
+| `routes/auth.js` | User registration, login, logout, get current user |
+| `routes/tasks.js` | CRUD operations for tasks (create, read, update, delete) |
+| `routes/courses.js` | CRUD operations for courses |
+| `routes/notifications.js` | Get, mark read, delete notifications |
+| `routes/recommendations.js` | AI-powered task prioritization and workload analysis |
+| `services/taskService.js` | Database queries for tasks |
+| `services/courseService.js` | Database queries for courses |
+| `services/notificationService.js` | Database queries for notifications |
+| `services/recommendationService.js` | Scoring algorithm for task prioritization |
+| `jobs/notificationJob.js` | Scheduled job (runs every 15 min) to create deadline reminders |
+
+### Frontend Files
+
+| File | Description |
+|------|-------------|
+| `App.jsx` | Main React component - sets up routing and navigation |
+| `index.js` | React entry point - renders the App |
+| `api/index.js` | Functions to call backend APIs (fetch wrapper) |
+| `hooks/useAuth.js` | Manages user login state globally |
+| `hooks/useTasks.js` | Manages tasks state and CRUD operations |
+| `hooks/useCourses.js` | Manages courses state |
+| `hooks/useNotifications.js` | Manages notifications state |
+| `pages/Dashboard.jsx` | Main dashboard - shows tasks and AI assistant |
+| `pages/Login.jsx` | Login and registration form |
+| `pages/Tasks.jsx` | Full task list with filters |
+| `pages/WeeklyCalendar.jsx` | Weekly view of tasks |
+| `pages/TodayPlan.jsx` | Daily recommended tasks |
+| `pages/EmailSync.jsx` | Microsoft OAuth email sync |
+| `components/TaskForm.jsx` | Form to create/edit tasks |
+| `components/TaskList.jsx` | Displays list of tasks |
+| `components/TaskItem.jsx` | Single task display with actions |
+| `components/NotificationBell.jsx` | Notification dropdown in navbar |
+| `components/AIAssistant.jsx` | Chatbot for task help and insights |
+
+### Docker Files
+
+| File | Description |
+|------|-------------|
+| `docker-compose.yml` | Defines 3 containers: PostgreSQL, backend, frontend |
+| `Dockerfile` (backend) | Builds Node.js backend image |
+| `frontend/Dockerfile` | Builds React frontend image |
+| `.env.docker` | Template for Docker environment variables |
 
 ## Database Schema
 
@@ -277,6 +333,62 @@ The frontend will run on `http://localhost:3000`
 ### Access the Application
 
 Open your browser and go to: `http://localhost:3000`
+
+## Running with Docker (Recommended)
+
+Docker ensures the app works consistently across all platforms (Windows, macOS, Linux).
+
+### 1. Install Docker Desktop
+
+Download from: https://www.docker.com/products/docker-desktop
+
+### 2. Configure Environment Variables
+
+```bash
+# Copy the template
+cp .env.docker .env
+
+# Edit .env with your Microsoft OAuth credentials (optional for basic use)
+```
+
+### 3. Run the Application
+
+```bash
+# Build and start all containers
+docker-compose up --build
+
+# Or run in background
+docker-compose up -d --build
+```
+
+### 4. Access the Application
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5001
+- PostgreSQL: localhost:5432
+
+### Docker Commands
+
+| Command | Description |
+|---------|-------------|
+| `docker-compose up --build` | Build and start all services |
+| `docker-compose down` | Stop all services |
+| `docker-compose down -v` | Stop and remove data |
+| `docker-compose logs -f` | View logs |
+| `docker-compose restart` | Restart all services |
+
+### Troubleshooting Docker
+
+```bash
+# View running containers
+docker ps
+
+# View logs for specific service
+docker-compose logs -f backend
+
+# Rebuild after code changes
+docker-compose up --build
+```
 
 ## Recommendation Engine Algorithm
 
