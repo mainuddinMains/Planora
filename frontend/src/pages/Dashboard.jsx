@@ -15,8 +15,15 @@ function Dashboard() {
       setShowForm(true);
       setEditingTask(null);
     };
+    const handleOpenChatbot = () => {
+      setShowAI(true);
+    };
     window.addEventListener('openAddTask', handleOpenAddTask);
-    return () => window.removeEventListener('openAddTask', handleOpenAddTask);
+    window.addEventListener('openChatbot', handleOpenChatbot);
+    return () => {
+      window.removeEventListener('openAddTask', handleOpenAddTask);
+      window.removeEventListener('openChatbot', handleOpenChatbot);
+    };
   }, []);
 
   const handleAddTask = async (taskData) => {
@@ -107,9 +114,6 @@ function Dashboard() {
         />
       </div>
 
-      <button className="ai-toggle" onClick={() => setShowAI(true)} title="AI Assistant">
-        🤖
-      </button>
       <AIAssistant isOpen={showAI} onClose={() => setShowAI(false)} />
     </div>
   );

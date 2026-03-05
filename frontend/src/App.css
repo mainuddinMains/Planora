@@ -79,6 +79,20 @@ nav a:hover {
   transform: scale(1.05);
 }
 
+.btn-chatbot {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.btn-chatbot:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .welcome-toast {
   position: fixed;
   top: 80px;

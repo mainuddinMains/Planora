@@ -55,6 +55,11 @@ function NavBar() {
     window.dispatchEvent(new Event('openAddTask'));
   };
 
+  const handleOpenChatbot = () => {
+    localStorage.setItem('openChatbot', 'true');
+    window.dispatchEvent(new Event('openChatbot'));
+  };
+
   if (!user) return null;
 
   return (
@@ -73,6 +78,7 @@ function NavBar() {
       </div>
       <div className="nav-right">
         <button className="btn-add-task" onClick={handleAddTask}>+ Add Task</button>
+        <button className="btn-chatbot" onClick={handleOpenChatbot} title="AI Assistant">🤖</button>
         <NotificationBell />
         <div className="profile-container" ref={profileRef}>
           <div 
