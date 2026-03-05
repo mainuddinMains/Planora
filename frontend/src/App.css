@@ -16,6 +16,12 @@ nav {
   align-items: center;
 }
 
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
 .nav-brand {
   display: flex;
   align-items: center;
@@ -55,6 +61,22 @@ nav a:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.btn-add-task {
+  background: white;
+  color: #4a90a4;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-add-task:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
 }
 
 .welcome-toast {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTasks } from '../hooks/useTasks';
 import { TaskForm, TaskList, AIAssistant } from '../components';
@@ -9,6 +9,15 @@ function Dashboard() {
   const [editingTask, setEditingTask] = useState(null);
   const [message, setMessage] = useState('');
   const [showAI, setShowAI] = useState(false);
+
+  useEffect(() => {
+    const handleOpenAddTask = () => {
+      setShowForm(true);
+      setEditingTask(null);
+    };
+    window.addEventListener('openAddTask', handleOpenAddTask);
+    return () => window.removeEventListener('openAddTask', handleOpenAddTask);
+  }, []);
 
   const handleAddTask = async (taskData) => {
     try {
@@ -68,12 +77,6 @@ function Dashboard() {
 
   return (
     <div className="page dashboard">
-      <div className="dashboard-header">
-        <div></div>
-        <button onClick={() => { setShowForm(!showForm); setEditingTask(null); }} className="btn-primary">
-          {showForm ? 'Cancel' : '+ Add Task'}
-        </button>
-      </div>
 
       {message && (
         <div className={`message ${message.includes('Failed') ? 'error-message' : 'success-message'}`}>

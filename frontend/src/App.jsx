@@ -50,21 +50,29 @@ function NavBar() {
     setNewPassword('');
   };
 
+  const handleAddTask = () => {
+    localStorage.setItem('openAddTask', 'true');
+    window.dispatchEvent(new Event('openAddTask'));
+  };
+
   if (!user) return null;
 
   return (
     <nav>
-      <div className="nav-brand">
-        <Link to="/">Planora</Link>
-      </div>
-      <div className="nav-links">
-        <Link to="/">Dashboard</Link>
-        <Link to="/tasks">Tasks</Link>
-        <Link to="/weekly">Weekly</Link>
-        <Link to="/today">Today</Link>
-        <Link to="/email-sync">Email Sync</Link>
+      <div className="nav-left">
+        <div className="nav-brand">
+          <Link to="/">Planora</Link>
+        </div>
+        <div className="nav-links">
+          <Link to="/">Dashboard</Link>
+          <Link to="/tasks">Tasks</Link>
+          <Link to="/weekly">Weekly</Link>
+          <Link to="/today">Today</Link>
+          <Link to="/email-sync">Email Sync</Link>
+        </div>
       </div>
       <div className="nav-right">
+        <button className="btn-add-task" onClick={handleAddTask}>+ Add Task</button>
         <NotificationBell />
         <div className="profile-container" ref={profileRef}>
           <div 
