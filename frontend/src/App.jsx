@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { NotificationBell } from './components';
+import { connectMicrosoftAccount } from './api';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
@@ -9,6 +10,32 @@ import WeeklyCalendar from './pages/WeeklyCalendar';
 import TodayPlan from './pages/TodayPlan';
 import EmailSync from './pages/EmailSync';
 import './App.css';
+
+function OAuthCallback() {
+  const [processed, setProcessed] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code && localStorage.getItem('microsoft_oauth_pending') === 'true' && !processed) {
+      localStorage.removeItem('microsoft_oauth_pending');
+      window.history.replaceState({}, document.title, '/email-sync');
+      
+      connectMicrosoftAccount(code)
+        .then(() => {
+          setProcessed(true);
+          window.dispatchEvent(new Event('microsoftAccountConnected'));
+        })
+        .catch(err => {
+          console.error('OAuth error:', err);
+          setProcessed(true);
+        });
+    }
+  }, [processed]);
+
+  return null;
+}
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -176,6 +203,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <OAuthCallback />
         <AppRoutes />
       </AuthProvider>
     </Router>

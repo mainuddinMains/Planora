@@ -11,7 +11,11 @@ function AIAssistant({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 380, height: 500 });
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const messagesEndRef = useRef(null);
+  const resizeRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 1) {
@@ -27,6 +31,41 @@ function AIAssistant({ isOpen, onClose }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing || isMaximized) return;
+      const newWidth = Math.max(320, Math.min(800, dragStart.width + (e.clientX - dragStart.x)));
+      const newHeight = Math.max(400, Math.min(800, dragStart.height + (e.clientY - dragStart.y)));
+      setDimensions({ width: newWidth, height: newHeight });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, isMaximized, dragStart]);
+
+  const startResize = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: dimensions.width,
+      height: dimensions.height
+    });
+    setIsResizing(true);
+  };
 
   const getQuickInsights = (tasks) => {
     const incomplete = tasks.filter(t => !t.is_completed);
@@ -160,7 +199,10 @@ function AIAssistant({ isOpen, onClose }) {
   }
 
   return (
-    <div className={`ai-assistant ${isMaximized ? 'maximized' : ''}`}>
+    <div 
+      className={`ai-assistant ${isMaximized ? 'maximized' : ''}`}
+      style={!isMaximized ? { width: dimensions.width, height: dimensions.height } : {}}
+    >
       <div className="ai-header">
         <span className="ai-icon">🤖</span>
         <span>AI Study Assistant</span>
@@ -203,6 +245,20 @@ function AIAssistant({ isOpen, onClose }) {
         />
         <button type="submit" disabled={loading || !input.trim()}>Send</button>
       </form>
+      
+      {!isMaximized && (
+        <div 
+          className="ai-resize-handle" 
+          onMouseDown={startResize}
+          title="Drag to resize"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M14 14H10L14 10V14ZM14 10L10 14V10L14 10Z"/>
+            <path d="M6 14H2L6 10V14ZM6 10L2 14V10L6 10Z"/>
+            <path d="M14 6V2L10 6H14ZM10 6L14 2V6H10Z"/>
+          </svg>
+        </div>
+      )}
     </div>
   );
 }
