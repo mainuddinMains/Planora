@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, register } from '../api';
+import { useAuth } from '../hooks/useAuth';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function Login() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { checkAuth } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,7 +33,6 @@ function Login() {
         const result = await login(formData.email, formData.password);
         console.log('Login result:', result);
         alert('Login successful! Redirecting...');
-        navigate('/');
       } else {
         if (!formData.name.trim()) {
           setError('Name is required');
@@ -41,8 +42,9 @@ function Login() {
         const result = await register(formData.email, formData.password, formData.name);
         console.log('Register result:', result);
         alert('Registration successful! Redirecting...');
-        navigate('/');
       }
+      await checkAuth();
+      navigate('/');
     } catch (err) {
       console.error('Auth error:', err);
       alert('Error: ' + (err.message || 'An error occurred'));
