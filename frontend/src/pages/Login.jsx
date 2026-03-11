@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, register } from '../api';
+
+import { useLanguage } from '../hooks/useLanguage';
+
 import { useAuth } from '../hooks/useAuth';
 
+
 function Login() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -58,28 +63,28 @@ function Login() {
     <div className="page auth-page">
       <div className="auth-container">
         <h1>Planora</h1>
-        <h2>{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+        <h2>{isLogin ? t('welcomeBack') : t('createAccount')}</h2>
 
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (
             <div className="form-group">
-              <label htmlFor="name">Name</label>
+              <label htmlFor="name">{t('name')}</label>
               <input
                 type="text"
                 id="name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Your name"
+                placeholder={t('name')}
                 autoComplete="name"
               />
             </div>
           )}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('email')}</label>
             <input
               type="email"
               id="email"
@@ -93,32 +98,32 @@ function Login() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('password')}</label>
             <input
               type="password"
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter password"
+              placeholder="••••••••"
               required
               autoComplete={isLogin ? 'current-password' : 'new-password'}
             />
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
+            {loading ? '...' : isLogin ? t('signIn') : t('signUp')}
           </button>
         </form>
 
         <p className="auth-switch">
-          {isLogin ? "Don't have an account? " : 'Already have an account? '}
+          {isLogin ? t('dontHaveAccount') : t('alreadyHaveAccount')}
           <button type="button" className="btn-link" onClick={() => {
             setIsLogin(!isLogin);
             setError('');
             setFormData({ email: formData.email, password: '', name: '' });
           }}>
-            {isLogin ? 'Sign Up' : 'Sign In'}
+            {isLogin ? t('signUp') : t('signIn')}
           </button>
         </p>
       </div>

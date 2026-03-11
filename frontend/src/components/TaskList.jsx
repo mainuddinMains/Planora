@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import TaskItem from './TaskItem';
+import { useLanguage } from '../hooks/useLanguage';
 
 function TaskList({ tasks, onToggle, onEdit, onDelete }) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredTasks = tasks.filter(task =>
@@ -19,22 +21,22 @@ function TaskList({ tasks, onToggle, onEdit, onDelete }) {
         <div className="search-box">
           <input
             type="text"
-            placeholder="Search tasks..."
+            placeholder={t('search') + '...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
         </div>
         <div className="task-stats">
-          <span className="stat">{pendingCount} pending</span>
-          <span className="stat">{completedCount} completed</span>
+          <span className="stat">{pendingCount} {t('pending')}</span>
+          <span className="stat">{completedCount} {t('completed')}</span>
         </div>
       </div>
 
       <div className="task-list">
         {filteredTasks.length === 0 ? (
           <div className="empty-state">
-            {searchTerm ? 'No tasks match your search' : 'No tasks yet. Add your first task!'}
+            {searchTerm ? t('noTasksMatch') : t('noTasks')}
           </div>
         ) : (
           filteredTasks.map(task => (

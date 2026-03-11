@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotifications } from '../hooks';
+import { useLanguage } from '../hooks/useLanguage';
 
 function NotificationBell() {
+  const { t } = useLanguage();
   const { notifications, unreadCount, loading, markAsRead, markAllRead, remove } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -48,7 +50,7 @@ function NotificationBell() {
       <button
         className="bell-button"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Notifications"
+        aria-label={t('notifications')}
       >
         <span className="bell-icon">🔔</span>
         {unreadCount > 0 && (
@@ -61,19 +63,19 @@ function NotificationBell() {
       {isOpen && (
         <div className="notification-dropdown">
           <div className="dropdown-header">
-            <h3>Notifications</h3>
+            <h3>{t('notifications')}</h3>
             {unreadCount > 0 && (
               <button onClick={markAllRead} className="btn-link">
-                Mark all read
+                {t('markAllRead')}
               </button>
             )}
           </div>
 
           <div className="dropdown-content">
             {loading ? (
-              <div className="loading-state">Loading...</div>
+              <div className="loading-state">{t('loading')}</div>
             ) : recentNotifications.length === 0 ? (
-              <div className="empty-state">No notifications</div>
+              <div className="empty-state">{t('noNotifications')}</div>
             ) : (
               recentNotifications.map(notification => (
                 <div
@@ -93,7 +95,7 @@ function NotificationBell() {
                       <button
                         onClick={() => markAsRead(notification.id)}
                         className="btn-icon"
-                        title="Mark as read"
+                        title={t('markAllRead')}
                       >
                         ✓
                       </button>
@@ -101,7 +103,7 @@ function NotificationBell() {
                     <button
                       onClick={() => remove(notification.id)}
                       className="btn-icon"
-                      title="Delete"
+                      title={t('delete')}
                     >
                       ×
                     </button>
@@ -114,7 +116,7 @@ function NotificationBell() {
           {notifications.length > 0 && (
             <div className="dropdown-footer">
               <Link to="/notifications" onClick={() => setIsOpen(false)}>
-                View all notifications
+                {t('viewAll')}
               </Link>
             </div>
           )}
