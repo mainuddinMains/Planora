@@ -63,28 +63,28 @@ function TaskForm({ onSubmit, initialData = null, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="task-form">
       <div className="form-group">
-        <label htmlFor="title">Task Title *</label>
+        <label htmlFor="title">{t('title')} *</label>
         <input
           type="text"
           id="title"
           name="title"
           value={formData.title}
           onChange={handleChange}
-          placeholder="Enter task title"
+          placeholder={t('title') + '...'}
           required
         />
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="course_id">Course</label>
+          <label htmlFor="course_id">{t('course')}</label>
           <select
             id="course_id"
             name="course_id"
             value={formData.course_id}
             onChange={handleChange}
           >
-            <option value="">Select a course</option>
+            <option value="">{t('select')}...</option>
             {courses.map(course => (
               <option key={course.id} value={course.id}>
                 {course.name} {course.code ? `(${course.code})` : ''}
@@ -94,23 +94,23 @@ function TaskForm({ onSubmit, initialData = null, onCancel }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="priority">Priority</label>
+          <label htmlFor="priority">{t('priority')}</label>
           <select
             id="priority"
             name="priority"
             value={formData.priority}
             onChange={handleChange}
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="low">{t('low')}</option>
+            <option value="medium">{t('medium')}</option>
+            <option value="high">{t('high')}</option>
           </select>
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="due_date">Due Date</label>
+          <label htmlFor="due_date">{t('dueDate')}</label>
           <input
             type="datetime-local"
             id="due_date"
@@ -121,7 +121,7 @@ function TaskForm({ onSubmit, initialData = null, onCancel }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="duration">Duration (minutes)</label>
+          <label htmlFor="duration">{t('duration')} ({t('minutes')})</label>
           <input
             type="number"
             id="duration"
@@ -135,13 +135,13 @@ function TaskForm({ onSubmit, initialData = null, onCancel }) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="description">Description</label>
+        <label htmlFor="description">{t('description')}</label>
         <textarea
           id="description"
           name="description"
           value={formData.description}
           onChange={handleChange}
-          placeholder="Add a description (optional)"
+          placeholder={t('noDescription')}
           rows="3"
         />
       </div>
@@ -149,11 +149,11 @@ function TaskForm({ onSubmit, initialData = null, onCancel }) {
       <div className="form-actions">
         {onCancel && (
           <button type="button" onClick={onCancel} className="btn-secondary">
-            Cancel
+            {t('cancel')}
           </button>
         )}
         <button type="submit" className="btn-primary">
-          {initialData ? 'Update Task' : 'Add Task'}
+          {initialData ? t('update') : t('addNewTask')}
         </button>
       </div>
     </form>

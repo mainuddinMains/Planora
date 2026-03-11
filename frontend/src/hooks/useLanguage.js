@@ -30,7 +30,7 @@ const translations = {
     all: 'All', filterBy: 'Filter by', sortBy: 'Sort by', search: 'Search',
     duration: 'Duration', minutes: 'minutes', hours: 'hours',
     taskDetails: 'Task Details', noDescription: 'No description',
-    edit: 'Edit', close: 'Close',
+    edit: 'Edit', close: 'Close', select: 'Select', 
     smartEmailSync: 'Smart Email Sync', importAssignments: 'Automatically import assignments from your university email',
     howItWorks: 'How It Works', signInMicrosoft: 'Click "Sign in with Microsoft" to connect your university account',
     grantPermission: 'Grant permission to read your emails (Planora only reads subjects)',
