@@ -1,6 +1,9 @@
 import React from 'react';
+import { useLanguage } from '../hooks/useLanguage';
 
 function TaskItem({ task, onToggle, onEdit, onDelete }) {
+  const { t } = useLanguage();
+  
   const formatDate = (dateString) => {
     if (!dateString) return null;
     const date = new Date(dateString);
@@ -9,10 +12,10 @@ function TaskItem({ task, onToggle, onEdit, onDelete }) {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      return `${t('dueToday')} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     }
     if (date.toDateString() === tomorrow.toDateString()) {
-      return `Tomorrow at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      return `${t('dueTomorrow')} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     }
     return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
@@ -61,16 +64,16 @@ function TaskItem({ task, onToggle, onEdit, onDelete }) {
             </span>
           )}
           {task.duration && (
-            <span className="task-duration">{task.duration} min</span>
+            <span className="task-duration">{task.duration} {t('minutes')}</span>
           )}
         </div>
       </div>
 
       <div className="task-actions">
-        <button onClick={() => onEdit(task)} className="btn-icon" title="Edit">
+        <button onClick={() => onEdit(task)} className="btn-icon" title={t('edit')}>
           ✏️
         </button>
-        <button onClick={() => onDelete(task.id)} className="btn-icon" title="Delete">
+        <button onClick={() => onDelete(task.id)} className="btn-icon" title={t('delete')}>
           🗑️
         </button>
       </div>
