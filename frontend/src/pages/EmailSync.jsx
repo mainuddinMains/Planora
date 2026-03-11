@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../hooks/useLanguage';
 import { getMicrosoftStatus, getMicrosoftAuthUrl, connectMicrosoftAccount, triggerEmailSync } from '../api';
 
 function EmailSync() {
+  const { t } = useLanguage();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -11,12 +13,12 @@ function EmailSync() {
     loadStatus();
 
     const handleAccountConnected = () => {
-      setMessage('Account connected successfully!');
+      setMessage(t('accountConnected'));
       loadStatus();
     };
     window.addEventListener('microsoftAccountConnected', handleAccountConnected);
     return () => window.removeEventListener('microsoftAccountConnected', handleAccountConnected);
-  }, []);
+  }, [t]);
 
   const loadStatus = async () => {
     setLoading(true);
@@ -44,7 +46,7 @@ function EmailSync() {
     try {
       await connectMicrosoftAccount({ disconnect: true });
       setStatus({ connected: false });
-      setMessage('Account disconnected');
+      setMessage(t('disconnected'));
     } catch (err) {
       setMessage('Error disconnecting: ' + err.message);
     }
@@ -52,13 +54,13 @@ function EmailSync() {
 
   const handleSync = async () => {
     setSyncing(true);
-    setMessage('Syncing...');
+    setMessage(t('syncing'));
     
     try {
       await triggerEmailSync();
-      setMessage('Sync completed! New tasks added to dashboard.');
+      setMessage(t('syncComplete'));
     } catch (err) {
-      setMessage('Sync error: ' + err.message);
+      setMessage(t('syncError') + err.message);
     } finally {
       setSyncing(false);
     }
