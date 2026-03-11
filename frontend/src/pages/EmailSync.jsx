@@ -77,18 +77,18 @@ function EmailSync() {
       setLoading(true);
       connectMicrosoftAccount(code)
         .then(() => {
-          setMessage('Account connected successfully!');
+          setMessage(t('accountConnected'));
           loadStatus();
         })
         .catch(err => {
-          setMessage('Error connecting: ' + err.message);
+          setMessage(t('errorConnecting') + err.message);
           setLoading(false);
         });
     }
-  }, []);
+  }, [t]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Unknown';
+    if (!dateString) return t('unknown');
     return new Date(dateString).toLocaleString();
   };
 
@@ -96,8 +96,8 @@ function EmailSync() {
     <div className="page email-sync">
       <div className="dashboard-header">
         <div>
-          <h1>Smart Email Sync</h1>
-          <p>Automatically import assignments from your university email</p>
+          <h1>{t('smartEmailSync')}</h1>
+          <p>{t('importAssignments')}</p>
         </div>
         {status?.connected && (
           <button 
@@ -105,30 +105,30 @@ function EmailSync() {
             className="btn-primary"
             disabled={syncing}
           >
-            {syncing ? 'Syncing...' : 'Sync Now'}
+            {syncing ? t('syncing') : t('syncNow')}
           </button>
         )}
       </div>
 
       {message && (
-        <div className={message.includes('Error') ? 'error-message' : 'success-message'}>
+        <div className={message.includes(t('error')) ? 'error-message' : 'success-message'}>
           {message}
         </div>
       )}
 
       <div className="form-card">
-        <h2>Connect Microsoft Account</h2>
+        <h2>{t('connectMicrosoft')}</h2>
         
         {loading ? (
-          <p>Loading...</p>
+          <p>{t('loading')}</p>
         ) : status?.connected ? (
           <div className="connected-account">
             <div className="account-info">
               <span className="microsoft-icon">📧</span>
               <div>
-                <strong>Connected</strong>
+                <strong>{t('connected')}</strong>
                 <p>{status.email}</p>
-                <p className="expires">Token: {status.needsRefresh ? 'Needs refresh' : 'Active'}</p>
+                <p className="expires">{t('token')}: {status.needsRefresh ? t('tokenNeedsRefresh') : t('tokenActive')}</p>
               </div>
             </div>
             <div className="account-actions">
@@ -136,29 +136,29 @@ function EmailSync() {
                 onClick={handleDisconnect} 
                 className="btn-secondary"
               >
-                Disconnect
+                {t('disconnect')}
               </button>
             </div>
           </div>
         ) : (
           <div className="connect-prompt">
-            <p>Click the button below to sign in with your Microsoft account. This will allow Planora to read your emails to import assignments automatically.</p>
+            <p>{t('importAssignments')}</p>
             <button onClick={handleConnect} className="btn-primary microsoft-btn">
-              Sign in with Microsoft
+              {t('connectMicrosoft')}
             </button>
           </div>
         )}
       </div>
 
       <div className="form-card">
-        <h2>How It Works</h2>
+        <h2>{t('howItWorks')}</h2>
         <div className="info-box">
           <ul>
-            <li>Click "Sign in with Microsoft" to connect your university account</li>
-            <li>Grant permission to read your emails (Planora only reads subjects)</li>
-            <li>Click "Sync Now" to import your recent assignments</li>
-            <li>Automatic sync runs every 15 minutes</li>
-            <li>Tasks are tagged as "Assignment" or "Announcement"</li>
+            <li>{t('signInMicrosoft')}</li>
+            <li>{t('grantPermission')}</li>
+            <li>{t('clickSync')}</li>
+            <li>{t('automaticSync')}</li>
+            <li>{t('taggedAs')}</li>
           </ul>
         </div>
       </div>

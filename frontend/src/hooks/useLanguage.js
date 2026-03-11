@@ -52,6 +52,13 @@ const translations = {
     monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday', thursday: 'Thursday',
     friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday',
     mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+    loading: 'Loading...', unknown: 'Unknown', loadingAccount: 'Loading...',
+    accountInfo: 'Account Information', emailAddress: 'Email Address',
+    newPassword: 'New Password', enterNewPassword: 'Enter new password',
+    error: 'Error', success: 'Success', pleaseWait: 'Please wait...',
+    addFirstTask: 'Add your first task!', noTasksYet: 'No tasks yet. Add your first task!',
+    viewAll: 'View All', markComplete: 'Mark Complete', markIncomplete: 'Mark Incomplete',
+    todayAt: 'Today at', tomorrowAt: 'Tomorrow at',
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', today: 'Hoy',
