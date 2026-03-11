@@ -1,7 +1,9 @@
 import React from 'react';
 import { useWeeklyTasks } from '../hooks';
+import { useLanguage } from '../hooks/useLanguage';
 
 function WeeklyCalendar() {
+  const { t } = useLanguage();
   const {
     tasksByDay,
     weekDays,

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks';
+import { useLanguage } from '../hooks/useLanguage';
 import { getTodayRecommendations, updateTask } from '../api';
 
 function TodayPlan() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
