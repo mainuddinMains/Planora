@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
-import { NotificationBell } from './components';
+import { NotificationBell, AIAssistant } from './components';
 import { connectMicrosoftAccount } from './api';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -224,6 +224,15 @@ function NavBar() {
 function AppRoutes() {
   const { user, showWelcome } = useAuth();
   const { t } = useLanguage();
+  const [showAI, setShowAI] = useState(false);
+
+  useEffect(() => {
+    const handleOpenChatbot = () => {
+      setShowAI(true);
+    };
+    window.addEventListener('openChatbot', handleOpenChatbot);
+    return () => window.removeEventListener('openChatbot', handleOpenChatbot);
+  }, []);
 
   return (
     <>
@@ -233,6 +242,7 @@ function AppRoutes() {
         </div>
       )}
       <NavBar />
+      <AIAssistant isOpen={showAI} onClose={() => setShowAI(false)} />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace={true} /> : <Login />} />
         <Route path="/email-sync" element={
