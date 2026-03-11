@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
+import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell } from './components';
+import { connectMicrosoftAccount } from './api';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
@@ -9,6 +11,32 @@ import WeeklyCalendar from './pages/WeeklyCalendar';
 import TodayPlan from './pages/TodayPlan';
 import EmailSync from './pages/EmailSync';
 import './App.css';
+
+function OAuthCallback() {
+  const [processed, setProcessed] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code && localStorage.getItem('microsoft_oauth_pending') === 'true' && !processed) {
+      localStorage.removeItem('microsoft_oauth_pending');
+      window.history.replaceState({}, document.title, '/email-sync');
+      
+      connectMicrosoftAccount(code)
+        .then(() => {
+          setProcessed(true);
+          window.dispatchEvent(new Event('microsoftAccountConnected'));
+        })
+        .catch(err => {
+          console.error('OAuth error:', err);
+          setProcessed(true);
+        });
+    }
+  }, [processed]);
+
+  return null;
+}
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,15 +48,21 @@ function PrivateRoute({ children }) {
 
 function NavBar() {
   const { user, logout, showWelcome } = useAuth();
+  const { t, language, setLanguage } = useLanguage();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const profileRef = useRef(null);
+  const languageRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setShowProfileMenu(false);
+      }
+      if (languageRef.current && !languageRef.current.contains(event.target)) {
+        setShowLanguageMenu(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -50,21 +84,62 @@ function NavBar() {
     setNewPassword('');
   };
 
+  const handleAddTask = () => {
+    localStorage.setItem('openAddTask', 'true');
+    window.dispatchEvent(new Event('openAddTask'));
+  };
+
+  const handleOpenChatbot = () => {
+    localStorage.setItem('openChatbot', 'true');
+    window.dispatchEvent(new Event('openChatbot'));
+  };
+
   if (!user) return null;
 
   return (
     <nav>
-      <div className="nav-brand">
-        <Link to="/">Planora</Link>
-      </div>
-      <div className="nav-links">
-        <Link to="/">Dashboard</Link>
-        <Link to="/tasks">Tasks</Link>
-        <Link to="/weekly">Weekly</Link>
-        <Link to="/today">Today</Link>
-        <Link to="/email-sync">Email Sync</Link>
+      <div className="nav-left">
+        <div className="nav-brand">
+          <Link to="/">Planora</Link>
+        </div>
+        <div className="nav-links">
+          <Link to="/">{t('dashboard')}</Link>
+          <Link to="/tasks">{t('tasks')}</Link>
+          <Link to="/weekly">{t('weekly')}</Link>
+          <Link to="/today">{t('today')}</Link>
+          <Link to="/email-sync">{t('emailSync')}</Link>
+        </div>
       </div>
       <div className="nav-right">
+        <button className="btn-add-task" onClick={handleAddTask}>{t('addTask')}</button>
+        <button className="btn-chatbot" onClick={handleOpenChatbot} title={t('aiAssistant')}>🤖</button>
+        
+        <div className="language-selector" ref={languageRef}>
+          <button 
+            className="language-btn"
+            onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+            title={t('language')}
+          >
+            {languages.find(l => l.code === language)?.flag || '🌐'}
+          </button>
+          {showLanguageMenu && (
+            <div className="language-dropdown">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  className={`language-option ${language === lang.code ? 'active' : ''}`}
+                  onClick={() => {
+                    setLanguage(lang.code);
+                    setShowLanguageMenu(false);
+                  }}
+                >
+                  <span>{lang.flag}</span> {lang.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
         <NotificationBell />
         <div className="profile-container" ref={profileRef}>
           <div 
@@ -87,10 +162,10 @@ function NavBar() {
               </div>
               <div className="profile-divider"></div>
               <button className="profile-menu-item" onClick={handleChangePassword}>
-                Change Password
+                {t('changePassword')}
               </button>
               <button className="profile-menu-item" onClick={handleLogout}>
-                Logout
+                {t('logout')}
               </button>
             </div>
           )}
@@ -127,12 +202,13 @@ function NavBar() {
 
 function AppRoutes() {
   const { user, showWelcome } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <>
       {showWelcome && user && (
         <div className="welcome-toast">
-          Welcome, {user.name}!
+          {t('welcome')}, {user.name}!
         </div>
       )}
       <NavBar />
@@ -161,9 +237,12 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <OAuthCallback />
+          <AppRoutes />
+        </AuthProvider>
+      </LanguageProvider>
     </Router>
   );
 }

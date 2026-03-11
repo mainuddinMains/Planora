@@ -16,6 +16,12 @@ nav {
   align-items: center;
 }
 
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
 .nav-brand {
   display: flex;
   align-items: center;
@@ -55,6 +61,92 @@ nav a:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.btn-add-task {
+  background: white;
+  color: #4a90a4;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-add-task:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+.btn-chatbot {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.btn-chatbot:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.language-selector {
+  position: relative;
+}
+
+.language-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.language-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-width: 140px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.language-option {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.language-option:hover {
+  background: #f5f5f5;
+}
+
+.language-option.active {
+  background: #e8f4f8;
+  color: #4a90a4;
+  font-weight: 500;
 }
 
 .welcome-toast {

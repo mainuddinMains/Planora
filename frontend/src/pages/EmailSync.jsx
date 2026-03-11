@@ -9,6 +9,13 @@ function EmailSync() {
 
   useEffect(() => {
     loadStatus();
+
+    const handleAccountConnected = () => {
+      setMessage('Account connected successfully!');
+      loadStatus();
+    };
+    window.addEventListener('microsoftAccountConnected', handleAccountConnected);
+    return () => window.removeEventListener('microsoftAccountConnected', handleAccountConnected);
   }, []);
 
   const loadStatus = async () => {
