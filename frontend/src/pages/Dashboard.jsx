@@ -43,21 +43,21 @@ function Dashboard() {
     try {
       await editTask(editingTask.id, taskData);
       setEditingTask(null);
-      setMessage('Task updated successfully!');
+      setMessage(t('taskUpdated'));
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
-      setMessage('Failed to update task: ' + err.message);
+      setMessage(t('failedToUpdate') + err.message);
     }
   };
 
   const handleDeleteTask = async (id) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
+    if (window.confirm(t('deleteConfirm'))) {
       try {
         await removeTask(id);
-        setMessage('Task deleted successfully!');
+        setMessage(t('taskDeleted'));
         setTimeout(() => setMessage(''), 3000);
       } catch (err) {
-        setMessage('Failed to delete task: ' + err.message);
+        setMessage(t('failedToDelete') + err.message);
       }
     }
   };
@@ -66,7 +66,7 @@ function Dashboard() {
     try {
       await toggleComplete(id, isCompleted);
     } catch (err) {
-      setMessage('Failed to update task: ' + err.message);
+      setMessage(t('failedToUpdateTask') + err.message);
     }
   };
 
@@ -81,7 +81,7 @@ function Dashboard() {
   };
 
   if (loading) {
-    return <div className="page">Loading tasks...</div>;
+    return <div className="page">{t('loadingTasks')}</div>;
   }
 
   return (
@@ -97,7 +97,7 @@ function Dashboard() {
 
       {(showForm || editingTask) && (
         <div className="form-card">
-          <h2>{editingTask ? 'Edit Task' : 'Add New Task'}</h2>
+          <h2>{editingTask ? t('editTask') : t('addNewTask')}</h2>
           <TaskForm
             onSubmit={editingTask ? handleEditTask : handleAddTask}
             initialData={editingTask}
@@ -107,7 +107,7 @@ function Dashboard() {
       )}
 
       <div className="tasks-section">
-        <h2>Your Tasks</h2>
+        <h2>{t('yourTasks')}</h2>
         <TaskList
           tasks={tasks}
           onToggle={handleToggleComplete}

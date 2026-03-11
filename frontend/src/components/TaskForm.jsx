@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useCourses } from '../hooks';
+import { useLanguage } from '../hooks/useLanguage';
 
 function TaskForm({ onSubmit, initialData = null, onCancel }) {
+  const { t } = useLanguage();
   const { courses } = useCourses();
   const [formData, setFormData] = useState({
     title: '',
