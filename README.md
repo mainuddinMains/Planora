@@ -7,13 +7,13 @@ Planora is a smart academic planning web application that helps students manage 
 ## Features
 
 - **User Authentication** - Secure JWT-based authentication with httpOnly cookies
-- **Task Management** - Create, update, delete, and track tasks with priorities
-- **Course Management** - Organize tasks by courses with color coding
-- **Recommendation Engine** - Smart task prioritization using scoring algorithm
-- **Weekly Calendar** - Visual workload distribution across the week
-- **Today's Plan** - AI-powered daily task recommendations
-- **Notification System** - Automated reminders for upcoming deadlines
-- **Search & Filter** - Find tasks quickly with search functionality
+- **Task & Course Management** - Create, update, delete, and track tasks by course and priority
+- **AI Study Assistant** - In-app assistant for task insights, scheduling tips, and productivity guidance
+- **Today + Weekly Planning** - Recommendation engine for daily priorities and weekly workload
+- **Notifications** - In-app notification bell plus automated reminder generation every 15 minutes
+- **Microsoft Email Sync** - OAuth connection + scheduled inbox sync to convert emails into tasks
+- **Multilingual UI** - 42-language selector with search, persistence, and RTL support (`ar`, `he`, `ur`)
+- **Dockerized Stack** - One-command local startup for frontend, backend, and PostgreSQL
 
 ## Tech Stack
 
@@ -21,9 +21,18 @@ Planora is a smart academic planning web application that helps students manage 
 |-------|-------------|
 | Frontend | React 18, React Router DOM, CSS |
 | Backend | Node.js, Express.js |
-| Database | PostgreSQL 16 |
+| Database | PostgreSQL (local 15/16+) |
 | Authentication | JWT, bcrypt, httpOnly cookies |
 | Background Jobs | node-cron |
+| Email + Parsing | Microsoft Graph OAuth, axios, chrono-node, imapflow, mailparser |
+
+## Internationalization
+
+- UI language state is managed by `frontend/src/hooks/useLanguage.js`
+- Language preference is persisted in `localStorage`
+- Navbar includes a searchable language dropdown
+- RTL is automatically enabled for `ar`, `he`, and `ur`
+- Current language list includes 42 options (English default + multilingual set)
 
 ## Project Structure
 
@@ -34,19 +43,28 @@ Planora/
 │   │   ├── index.js              # Database connection pool
 │   │   └── schema.sql            # PostgreSQL schema
 │   ├── jobs/
-│   │   └── notificationJob.js    # Cron job for notifications
+│   │   ├── notificationJob.js    # Cron job for notifications
+│   │   └── emailSyncJob.js       # Cron job for email sync
 │   ├── middleware/
 │   │   ├── auth.js               # JWT authentication middleware
 │   │   └── index.js
 │   ├── routes/
 │   │   ├── auth.js               # Authentication endpoints
 │   │   ├── courses.js            # Course CRUD endpoints
+│   │   ├── emailSources.js       # Email source CRUD endpoints
+│   │   ├── emailSync.js          # Email sync trigger/status endpoints
+│   │   ├── microsoftAuth.js      # Microsoft OAuth endpoints
 │   │   ├── notifications.js      # Notification endpoints
 │   │   ├── recommendations.js    # Recommendation engine endpoints
 │   │   ├── tasks.js              # Task CRUD endpoints
 │   │   └── index.js
 │   ├── services/
 │   │   ├── courseService.js      # Course database operations
+│   │   ├── emailOAuthSyncService.js
+│   │   ├── emailOutlookSyncService.js
+│   │   ├── emailSourceService.js
+│   │   ├── emailSyncRunner.js
+│   │   ├── microsoftOAuth.js
 │   │   ├── notificationService.js # Notification database operations
 │   │   ├── recommendationService.js # Scoring algorithm
 │   │   ├── taskService.js        # Task database operations
@@ -62,6 +80,7 @@ Planora/
 │   │   ├── api/
 │   │   │   └── index.js          # API client functions
 │   │   ├── components/
+│   │   │   ├── AIAssistant.jsx
 │   │   │   ├── NotificationBell.jsx
 │   │   │   ├── TaskForm.jsx
 │   │   │   ├── TaskItem.jsx
@@ -70,12 +89,15 @@ Planora/
 │   │   ├── hooks/
 │   │   │   ├── useAuth.js        # Authentication hook
 │   │   │   ├── useCourses.js     # Courses state hook
+│   │   │   ├── useEmailSources.js
+│   │   │   ├── useLanguage.js    # i18n and language state
 │   │   │   ├── useNotifications.js
 │   │   │   ├── useTasks.js       # Tasks state hook
 │   │   │   ├── useWeeklyTasks.js
 │   │   │   └── index.js
 │   │   ├── pages/
 │   │   │   ├── Dashboard.jsx
+│   │   │   ├── EmailSync.jsx
 │   │   │   ├── Login.jsx
 │   │   │   ├── Tasks.jsx
 │   │   │   ├── TodayPlan.jsx
@@ -87,8 +109,9 @@ Planora/
 │   └── package.json
 │
 ├── docker-compose.yml            # Docker containers setup
-├── Dockerfile                    # Backend Docker image
+├── backend/Dockerfile            # Backend Docker image
 ├── frontend/Dockerfile           # Frontend Docker image
+├── .env.docker                   # Docker env template
 └── README.md
 ```
 
@@ -107,11 +130,18 @@ Planora/
 | `routes/courses.js` | CRUD operations for courses |
 | `routes/notifications.js` | Get, mark read, delete notifications |
 | `routes/recommendations.js` | AI-powered task prioritization and workload analysis |
+| `routes/microsoftAuth.js` | Microsoft OAuth connect/status/disconnect |
+| `routes/emailSources.js` | User email source CRUD |
+| `routes/emailSync.js` | Trigger sync and check sync status |
+| `services/microsoftOAuth.js` | Microsoft OAuth + Graph API helpers |
+| `services/emailSourceService.js` | Email source persistence |
+| `services/emailSyncRunner.js` | Batch sync coordinator |
 | `services/taskService.js` | Database queries for tasks |
 | `services/courseService.js` | Database queries for courses |
 | `services/notificationService.js` | Database queries for notifications |
 | `services/recommendationService.js` | Scoring algorithm for task prioritization |
 | `jobs/notificationJob.js` | Scheduled job (runs every 15 min) to create deadline reminders |
+| `jobs/emailSyncJob.js` | Scheduled job (runs every 15 min) to sync connected inboxes |
 
 ### Frontend Files
 
@@ -121,8 +151,10 @@ Planora/
 | `index.js` | React entry point - renders the App |
 | `api/index.js` | Functions to call backend APIs (fetch wrapper) |
 | `hooks/useAuth.js` | Manages user login state globally |
+| `hooks/useLanguage.js` | Language context, translations, and RTL/LTR switching |
 | `hooks/useTasks.js` | Manages tasks state and CRUD operations |
 | `hooks/useCourses.js` | Manages courses state |
+| `hooks/useEmailSources.js` | Email source state helpers |
 | `hooks/useNotifications.js` | Manages notifications state |
 | `pages/Dashboard.jsx` | Main dashboard - shows tasks and AI assistant |
 | `pages/Login.jsx` | Login and registration form |
@@ -141,7 +173,7 @@ Planora/
 | File | Description |
 |------|-------------|
 | `docker-compose.yml` | Defines 3 containers: PostgreSQL, backend, frontend |
-| `Dockerfile` (backend) | Builds Node.js backend image |
+| `backend/Dockerfile` | Builds Node.js backend image |
 | `frontend/Dockerfile` | Builds React frontend image |
 | `.env.docker` | Template for Docker environment variables |
 
@@ -169,9 +201,19 @@ task_tags (task_id, tag_id)
 -- Notifications table
 notifications (id, user_id, task_id, type, title, message, 
               is_read, created_at)
+
+-- Email sources table
+email_sources (id, user_id, provider, host, port, tls, username,
+               password_encrypted, access_token, refresh_token,
+               oauth_token, expires_at, last_sync_at, enabled, created_at)
 ```
 
 ## API Endpoints
+
+### Health
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | API health check |
 
 ### Authentication
 | Method | Endpoint | Description |
@@ -213,17 +255,43 @@ notifications (id, user_id, task_id, type, title, message,
 | PUT | `/api/notifications/read-all` | Mark all read |
 | DELETE | `/api/notifications/:id` | Delete notification |
 
+### Microsoft OAuth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/microsoft/auth-url` | Get OAuth URL for Microsoft login |
+| POST | `/api/microsoft/token` | Exchange auth code for tokens and connect account |
+| GET | `/api/microsoft/status` | Check whether account is connected |
+| POST | `/api/microsoft/disconnect` | Disconnect Microsoft account |
+
+### Email Sources
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/email_sources` | Get saved email sources |
+| POST | `/api/email_sources` | Create or upsert email source |
+| PUT | `/api/email_sources/:id` | Update email source |
+| DELETE | `/api/email_sources/:id` | Delete email source |
+
+### Email Sync
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/email/now` | Trigger sync job immediately |
+| GET | `/api/email/status` | Get sync status and source info |
+
 ## Dependencies
 
 ### Backend Dependencies
 ```json
 {
+  "axios": "^1.13.5",           // HTTP client for Microsoft APIs
   "bcrypt": "^5.1.1",           // Password hashing
+  "chrono-node": "^2.9.0",      // Natural language date parsing
   "cookie-parser": "^1.4.6",    // Cookie parsing
   "cors": "^2.8.5",             // Cross-origin requests
   "dotenv": "^16.3.1",          // Environment variables
   "express": "^4.18.2",         // Web framework
+  "imapflow": "^1.2.10",        // IMAP integration helpers
   "jsonwebtoken": "^9.0.2",     // JWT authentication
+  "mailparser": "^3.9.3",       // Email parsing helpers
   "node-cron": "^3.0.3",        // Scheduled jobs
   "pg": "^8.11.3"               // PostgreSQL client
 }
@@ -250,7 +318,7 @@ notifications (id, user_id, task_id, type, title, message,
 
 ### Prerequisites
 - Node.js (v18 or higher)
-- PostgreSQL 16
+- PostgreSQL 15 or 16
 - npm or yarn
 
 ### 1. Clone the Repository
@@ -260,7 +328,7 @@ git clone <repository-url>
 cd Planora
 ```
 
-### 2. Install PostgreSQL (macOS)
+### 2. Install PostgreSQL (macOS, example with v16)
 
 ```bash
 # Install via Homebrew
@@ -299,6 +367,12 @@ PORT=5001
 DATABASE_URL=postgresql://localhost:5432/planora
 JWT_SECRET=your_super_secure_jwt_secret_change_in_production
 NODE_ENV=development
+CORS_ORIGINS=http://localhost:3000
+
+# Optional: required only for Microsoft OAuth email sync
+MICROSOFT_CLIENT_ID=
+MICROSOFT_CLIENT_SECRET=
+MICROSOFT_TENANT_ID=
 ```
 
 ### 6. Install Frontend Dependencies
@@ -307,6 +381,23 @@ NODE_ENV=development
 cd ../frontend
 npm install
 ```
+
+### 7. (Optional) Frontend Environment Variable
+
+Create `frontend/.env` if you want a custom API URL:
+
+```env
+REACT_APP_API_URL=http://localhost:5001/api
+```
+
+### 8. (Optional) Microsoft OAuth Setup
+
+If you want email sync enabled:
+
+1. Register an app in Azure Portal
+2. Add redirect URI: `http://localhost:3000`
+3. Grant delegated scopes: `Mail.Read` and `offline_access`
+4. Copy credentials into `backend/.env` (`MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `MICROSOFT_TENANT_ID`)
 
 ## Running the Application
 
@@ -337,6 +428,7 @@ Open your browser and go to: `http://localhost:3000`
 ## Running with Docker (Recommended)
 
 Docker ensures the app works consistently across all platforms (Windows, macOS, Linux).
+The current `docker-compose.yml` provisions PostgreSQL 15, backend on `5001`, and frontend on `3000`.
 
 ### 1. Install Docker Desktop
 
@@ -445,12 +537,25 @@ The notification system runs every 15 minutes and:
 
 ## Environment Variables
 
+### Backend (`backend/.env`)
+
 | Variable | Description | Default |
 |----------|-------------|---------|
-| PORT | Backend server port | 5001 |
-| DATABASE_URL | PostgreSQL connection string | postgresql://localhost:5432/planora |
-| JWT_SECRET | Secret for JWT signing | (required) |
-| NODE_ENV | Environment mode | development |
+| `PORT` | Backend server port | `5001` |
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://localhost:5432/planora` |
+| `JWT_SECRET` | Secret for JWT signing | (required) |
+| `NODE_ENV` | Environment mode | `development` |
+| `CORS_ORIGINS` | Extra allowed CORS origins (comma-separated) | empty |
+| `FRONTEND_URL` | Production frontend URL for CORS | empty |
+| `MICROSOFT_CLIENT_ID` | Microsoft app client ID | empty |
+| `MICROSOFT_CLIENT_SECRET` | Microsoft app client secret | empty |
+| `MICROSOFT_TENANT_ID` | Microsoft tenant ID (`common` if omitted) | empty |
+
+### Frontend (`frontend/.env`, optional)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `REACT_APP_API_URL` | Base API URL used by frontend | `http://localhost:5001/api` |
 
 ## Troubleshooting
 
