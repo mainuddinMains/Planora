@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../hooks/useLanguage';
 import { useTasks } from '../hooks/useTasks';
 import { TaskForm, TaskList, AIAssistant } from '../components';
 
 function Dashboard() {
+  const { t } = useLanguage();
   const { tasks, loading, error, addTask, editTask, removeTask, toggleComplete } = useTasks();
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -30,10 +32,10 @@ function Dashboard() {
     try {
       await addTask(taskData);
       setShowForm(false);
-      setMessage('Task added successfully!');
+      setMessage(t('taskAdded'));
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
-      setMessage('Failed to add task: ' + err.message);
+      setMessage(t('failedToAdd') + err.message);
     }
   };
 
