@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTasks } from '../hooks/useTasks';
-import { TaskForm, TaskList, AIAssistant } from '../components';
+import { TaskForm, TaskList } from '../components';
 
 function Dashboard() {
   const { t } = useLanguage();
@@ -10,21 +10,15 @@ function Dashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [message, setMessage] = useState('');
-  const [showAI, setShowAI] = useState(false);
 
   useEffect(() => {
     const handleOpenAddTask = () => {
       setShowForm(true);
       setEditingTask(null);
     };
-    const handleOpenChatbot = () => {
-      setShowAI(true);
-    };
     window.addEventListener('openAddTask', handleOpenAddTask);
-    window.addEventListener('openChatbot', handleOpenChatbot);
     return () => {
       window.removeEventListener('openAddTask', handleOpenAddTask);
-      window.removeEventListener('openChatbot', handleOpenChatbot);
     };
   }, []);
 
@@ -115,8 +109,6 @@ function Dashboard() {
           onDelete={handleDeleteTask}
         />
       </div>
-
-      <AIAssistant isOpen={showAI} onClose={() => setShowAI(false)} />
     </div>
   );
 }
