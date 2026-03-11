@@ -43,7 +43,7 @@ function PrivateRoute({ children }) {
   
   if (loading) return <div className="page">Loading...</div>;
   
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace={true} />;
 }
 
 function NavBar() {
@@ -234,7 +234,7 @@ function AppRoutes() {
       )}
       <NavBar />
       <Routes>
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/login" element={user ? <Navigate to="/" replace={true} /> : <Login />} />
         <Route path="/email-sync" element={
           <PrivateRoute><EmailSync /></PrivateRoute>
         } />
