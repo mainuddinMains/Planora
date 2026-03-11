@@ -96,7 +96,7 @@ const translations = {
     emailSync: 'Sincronizar Email', addTask: '+ Adicionar Tarefa', profile: 'Perfil',
     logout: 'Sair', changePassword: 'Alterar Senha', welcome: 'Bem-vindo',
     yourTasks: 'Suas Tarefas', noTasks: 'Nenhuma tarefa ainda', addNewTask: 'Adicionar Nova Tarefa',
- 'Editar Tarefa', title: '    editTask:Título', description: 'Descrição',
+    editTask: 'Editar Tarefa', title: 'Título', description: 'Descrição',
     dueDate: 'Data de Vencimento', priority: 'Prioridade', course: 'Curso',
     low: 'Baixa', medium: 'Média', high: 'Alta', save: 'Salvar', cancel: 'Cancelar',
     delete: 'Excluir', complete: 'Concluir', settings: 'Configurações',
