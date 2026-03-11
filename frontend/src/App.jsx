@@ -52,9 +52,15 @@ function NavBar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const profileRef = useRef(null);
   const languageRef = useRef(null);
+
+  const filteredLanguages = languages.filter(lang => 
+    lang.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
+    lang.code.toLowerCase().includes(languageSearch.toLowerCase())
+  );
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -124,18 +130,33 @@ function NavBar() {
           </button>
           {showLanguageMenu && (
             <div className="language-dropdown">
-              {languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  className={`language-option ${language === lang.code ? 'active' : ''}`}
-                  onClick={() => {
-                    setLanguage(lang.code);
-                    setShowLanguageMenu(false);
-                  }}
-                >
-                  <span>{lang.flag}</span> {lang.name}
-                </button>
-              ))}
+              <div className="language-search">
+                <input
+                  type="text"
+                  placeholder={t('search') + '...'}
+                  value={languageSearch}
+                  onChange={(e) => setLanguageSearch(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div className="language-list">
+                {filteredLanguages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    className={`language-option ${language === lang.code ? 'active' : ''}`}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setShowLanguageMenu(false);
+                      setLanguageSearch('');
+                    }}
+                  >
+                    <span>{lang.flag}</span> {lang.name}
+                  </button>
+                ))}
+                {filteredLanguages.length === 0 && (
+                  <div className="language-no-results">No languages found</div>
+                )}
+              </div>
             </div>
           )}
         </div>

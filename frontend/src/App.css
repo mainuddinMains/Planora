@@ -119,10 +119,34 @@ nav a:hover {
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  min-width: 180px;
-  max-height: 300px;
-  overflow-y: auto;
+  min-width: 220px;
+  max-height: 350px;
+  display: flex;
+  flex-direction: column;
   z-index: 1000;
+}
+
+.language-search {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.language-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.language-search input:focus {
+  border-color: #4a90a4;
+}
+
+.language-list {
+  overflow-y: auto;
+  max-height: 280px;
 }
 
 .language-option {
@@ -148,6 +172,13 @@ nav a:hover {
   background: #e8f4f8;
   color: #4a90a4;
   font-weight: 500;
+}
+
+.language-no-results {
+  padding: 20px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
 }
 
 .welcome-toast {
