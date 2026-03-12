@@ -1,0 +1,192 @@
+.ai-settings-modal {
+  background: var(--card-bg, #fff);
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.ai-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ai-settings-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary, #666);
+}
+
+.ai-settings-desc {
+  margin-bottom: 20px;
+  color: var(--text-secondary, #666);
+}
+
+.ai-settings-desc p {
+  margin: 0;
+}
+
+.ai-providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-provider-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.ai-provider-card.connected {
+  border-color: var(--primary-color, #4CAF50);
+  background: var(--highlight-bg, #f5f5f5);
+}
+
+.provider-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.provider-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.provider-details h3 {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+}
+
+.provider-details p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+}
+
+.provider-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connected-badge {
+  color: var(--primary-color, #4CAF50);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.btn-connect {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-connect:hover {
+  opacity: 0.9;
+}
+
+.btn-disconnect {
+  padding: 8px 16px;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  background: transparent;
+  color: #f44336;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-disconnect:hover {
+  background: #f44336;
+  color: white;
+}
+
+.ai-settings-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #e0e0e0);
+}
+
+.privacy-note {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+  margin: 0;
+}
+
+.api-key-note {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+  margin: 8px 0 0 0;
+  padding: 8px;
+  background: var(--highlight-bg, #e3f2fd);
+  border-radius: 6px;
+}
+
+.api-key-note a {
+  color: var(--primary-color, #4CAF50);
+  text-decoration: none;
+}
+
+.api-key-note a:hover {
+  text-decoration: underline;
+}
+
+.api-key-input {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.api-key-input input {
+  width: 120px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.btn-save {
+  padding: 6px 12px;
+  background: var(--primary-color, #4CAF50);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-cancel {
+  padding: 6px 12px;
+  background: #ddd;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}

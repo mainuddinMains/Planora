@@ -63,8 +63,11 @@ const translations = {
     startFocus: 'Start Focus', pause: 'Pause', resume: 'Resume', reset: 'Reset',
     ready: 'Ready', focusing: 'Focusing', paused: 'Paused',
     sessionsToday: 'Sessions Today', enableNotifications: 'Enable notifications for reminders',
-    enable: 'Enable', set: 'Set', focusComplete: 'Great job! Take a short break.',
+    enable: 'Enable', set: 'Set',     focusComplete: 'Great job! Take a short break.',
     backToWork: "Welcome back! Let's get back to focused work.",
+    aiAccounts: 'AI Accounts', aiSettingsDesc: 'Connect your AI provider accounts to use different AI models in the chatbot.',
+    aiPrivacyNote: 'Planora does not store your credentials. Authentication is handled securely by the providers.',
+    enterApiKey: 'Enter API Key',
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', today: 'Hoy',

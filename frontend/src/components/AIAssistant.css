@@ -41,6 +41,38 @@
   font-size: 24px;
 }
 
+.ai-title-select {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-title-select > span {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.ai-select {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.ai-select option {
+  background: white;
+  color: #333;
+}
+
+.ai-settings-btn {
+  font-size: 14px !important;
+}
+
 .ai-header span:nth-child(2) {
   flex: 1;
 }

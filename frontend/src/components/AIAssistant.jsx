@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTasks } from '../hooks/useTasks';
+import AISettings from './AISettings';
 import './AIAssistant.css';
 
 function AIAssistant({ isOpen, onClose }) {
@@ -14,8 +15,49 @@ function AIAssistant({ isOpen, onClose }) {
   const [dimensions, setDimensions] = useState({ width: 380, height: 500 });
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [showAISettings, setShowAISettings] = useState(false);
+  const [selectedAI, setSelectedAI] = useState('local');
+  const [connectedAccounts, setConnectedAccounts] = useState(() => {
+    const saved = localStorage.getItem('aiConnectedAccounts');
+    return saved ? JSON.parse(saved) : {};
+  });
   const messagesEndRef = useRef(null);
   const resizeRef = useRef(null);
+
+  const aiOptions = [
+    { id: 'local', name: 'Planora AI', icon: '🤖', desc: 'Built-in assistant' },
+    { id: 'openai', name: 'ChatGPT', icon: '🤖', desc: 'OpenAI account' },
+    { id: 'anthropic', name: 'Claude', icon: '🧠', desc: 'Anthropic account' },
+    { id: 'google', name: 'Gemini', icon: '✨', desc: 'Google account' },
+    { id: 'github', name: 'GitHub Models', icon: '🐙', desc: 'GitHub account' },
+    { id: 'microsoft', name: 'Azure', icon: '🔷', desc: 'Microsoft account' },
+  ];
+
+  const availableAIs = aiOptions.filter(ai => 
+    ai.id === 'local' || connectedAccounts[ai.id]
+  );
+
+  useEffect(() => {
+    localStorage.setItem('aiConnectedAccounts', JSON.stringify(connectedAccounts));
+  }, [connectedAccounts]);
+
+  const handleConnectAI = (providerId) => {
+    if (providerId === 'microsoft' && connectedAccounts.microsoft) {
+      return;
+    }
+    setConnectedAccounts(prev => ({ ...prev, [providerId]: true }));
+  };
+
+  const handleDisconnectAI = (providerId) => {
+    setConnectedAccounts(prev => {
+      const updated = { ...prev };
+      delete updated[providerId];
+      return updated;
+    });
+    if (selectedAI === providerId) {
+      setSelectedAI('local');
+    }
+  };
 
   useEffect(() => {
     if (isOpen && messages.length === 1) {
@@ -205,8 +247,27 @@ function AIAssistant({ isOpen, onClose }) {
     >
       <div className="ai-header">
         <span className="ai-icon">🤖</span>
-        <span>AI Study Assistant</span>
+        <div className="ai-title-select">
+          <span>AI Study Assistant</span>
+          <select 
+            className="ai-select"
+            value={selectedAI}
+            onChange={(e) => setSelectedAI(e.target.value)}
+            title="Select AI Model"
+          >
+            {aiOptions.map(ai => (
+              <option 
+                key={ai.id} 
+                value={ai.id}
+                disabled={ai.id !== 'local' && !connectedAccounts[ai.id]}
+              >
+                {ai.icon} {ai.name} {!connectedAccounts[ai.id] && ai.id !== 'local' ? '(Not connected)' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="ai-controls">
+          <button className="ai-btn ai-settings-btn" onClick={() => setShowAISettings(true)} title="AI Settings">⚙️</button>
           <button className="ai-btn" onClick={handleMinimize} title="Minimize">−</button>
           <button className="ai-btn" onClick={handleMaximize} title={isMaximized ? "Restore" : "Maximize"}>
             {isMaximized ? '❐' : '□'}
@@ -259,6 +320,15 @@ function AIAssistant({ isOpen, onClose }) {
           </svg>
         </div>
       )}
+
+      <AISettings 
+        isOpen={showAISettings} 
+        onClose={() => setShowAISettings(false)}
+        connectedAccounts={connectedAccounts}
+        onConnect={handleConnectAI}
+        onDisconnect={handleDisconnectAI}
+        onSelectAI={setSelectedAI}
+      />
     </div>
   );
 }
