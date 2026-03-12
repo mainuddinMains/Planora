@@ -1,0 +1,222 @@
+.focus-timer-modal {
+  background: var(--card-bg, #fff);
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.focus-timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.focus-timer-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary, #666);
+}
+
+.notification-prompt {
+  background: var(--highlight-bg, #e3f2fd);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.notification-prompt p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.notification-prompt button {
+  padding: 6px 12px;
+  background: var(--primary-color, #4CAF50);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.timer-display {
+  margin: 20px 0;
+}
+
+.timer-circle {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.timer-circle svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.timer-bg {
+  fill: none;
+  stroke: var(--border-color, #e0e0e0);
+  stroke-width: 8;
+}
+
+.timer-progress {
+  fill: none;
+  stroke: var(--primary-color, #4CAF50);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.timer-text .time {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--text-primary, #333);
+}
+
+.timer-text .status {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+  margin-top: 4px;
+}
+
+.duration-selector {
+  margin: 20px 0;
+}
+
+.duration-selector label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-secondary, #666);
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.preset-buttons button {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color, #ddd);
+  background: var(--bg-color, #fff);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-buttons button:hover,
+.preset-buttons button.active {
+  background: var(--primary-color, #4CAF50);
+  color: white;
+  border-color: var(--primary-color, #4CAF50);
+}
+
+.custom-time-input {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-time-input input {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.custom-time-input button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.custom-time-input button:first-of-type {
+  background: var(--primary-color, #4CAF50);
+  color: white;
+}
+
+.custom-time-input button:last-of-type {
+  background: var(--border-color, #ddd);
+}
+
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.timer-controls button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-start {
+  background: var(--primary-color, #4CAF50);
+  color: white;
+}
+
+.btn-start:hover {
+  background: #45a049;
+}
+
+.btn-pause {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-resume {
+  background: var(--primary-color, #4CAF50);
+  color: white;
+}
+
+.btn-reset {
+  background: #f44336;
+  color: white;
+}
+
+.btn-reset:hover {
+  background: #d32f2f;
+}
+
+.focus-stats {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #e0e0e0);
+  color: var(--text-secondary, #666);
+}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
-import { NotificationBell, AIAssistant } from './components';
+import { NotificationBell, AIAssistant, FocusTimer } from './components';
 import { connectMicrosoftAccount } from './api';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -46,7 +46,7 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" replace={true} />;
 }
 
-function NavBar() {
+function NavBar({ onOpenFocusTimer }) {
   const { user, logout, showWelcome } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -119,6 +119,7 @@ function NavBar() {
       <div className="nav-right">
         <button className="btn-add-task" onClick={handleAddTask}>{t('addTask')}</button>
         <button className="btn-chatbot" onClick={handleOpenChatbot} title={t('aiAssistant')}>🤖</button>
+        <button className="btn-focus" onClick={onOpenFocusTimer} title={t('focusMode')}>🎯</button>
         
         <div className="language-selector" ref={languageRef}>
           <button 
@@ -225,6 +226,7 @@ function AppRoutes() {
   const { user, showWelcome } = useAuth();
   const { t } = useLanguage();
   const [showAI, setShowAI] = useState(false);
+  const [showFocusTimer, setShowFocusTimer] = useState(false);
 
   useEffect(() => {
     const handleOpenChatbot = () => {
@@ -241,8 +243,9 @@ function AppRoutes() {
           {t('welcome')}, {user.name}!
         </div>
       )}
-      <NavBar />
+      <NavBar onOpenFocusTimer={() => setShowFocusTimer(true)} />
       <AIAssistant isOpen={showAI} onClose={() => setShowAI(false)} />
+      <FocusTimer isOpen={showFocusTimer} onClose={() => setShowFocusTimer(false)} />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace={true} /> : <Login />} />
         <Route path="/email-sync" element={

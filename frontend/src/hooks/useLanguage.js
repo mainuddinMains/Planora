@@ -59,6 +59,12 @@ const translations = {
     addFirstTask: 'Add your first task!', noTasksYet: 'No tasks yet. Add your first task!',
     viewAll: 'View All', markComplete: 'Mark Complete', markIncomplete: 'Mark Incomplete',
     todayAt: 'Today at', tomorrowAt: 'Tomorrow at',
+    focusMode: 'Focus Mode', selectDuration: 'Select Duration', min: 'min',
+    startFocus: 'Start Focus', pause: 'Pause', resume: 'Resume', reset: 'Reset',
+    ready: 'Ready', focusing: 'Focusing', paused: 'Paused',
+    sessionsToday: 'Sessions Today', enableNotifications: 'Enable notifications for reminders',
+    enable: 'Enable', set: 'Set', focusComplete: 'Great job! Take a short break.',
+    backToWork: "Welcome back! Let's get back to focused work.",
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', today: 'Hoy',
