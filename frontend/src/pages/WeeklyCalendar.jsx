@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWeeklyTasks } from '../hooks';
 import { useLanguage } from '../hooks/useLanguage';
+import { updateTask } from '../api';
 
 function WeeklyCalendar() {
   const { t } = useLanguage();
@@ -12,8 +13,66 @@ function WeeklyCalendar() {
     goToPreviousWeek,
     goToNextWeek,
     goToCurrentWeek,
-    currentWeekStart
+    currentWeekStart,
+    refresh
   } = useWeeklyTasks();
+  
+  const [draggedTask, setDraggedTask] = useState(null);
+  const [dragOverDay, setDragOverDay] = useState(null);
+  const [message, setMessage] = useState('');
+
+  const handleDragStart = (e, task, day) => {
+    setDraggedTask({ task, originalDay: day });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', JSON.stringify({ taskId: task.id }));
+  };
+
+  const handleDragOver = (e, day) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverDay(day);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDay(null);
+  };
+
+  const handleDrop = async (e, targetDay) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    
+    if (!draggedTask || !targetDay) return;
+    
+    const originalDate = new Date(draggedTask.originalDay);
+    const targetDate = new Date(targetDay);
+    
+    const hours = originalDate.getHours();
+    const minutes = originalDate.getMinutes();
+    targetDate.setHours(hours, minutes, 0, 0);
+    
+    if (targetDate.toDateString() === originalDate.toDateString()) {
+      setDraggedTask(null);
+      return;
+    }
+
+    try {
+      await updateTask(draggedTask.task.id, {
+        due_date: targetDate.toISOString()
+      });
+      setMessage(t('taskUpdated'));
+      setTimeout(() => setMessage(''), 3000);
+      refresh();
+    } catch (err) {
+      console.error('Failed to move task:', err);
+    }
+    
+    setDraggedTask(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTask(null);
+    setDragOverDay(null);
+  };
 
   const formatDayHeader = (date) => {
     const today = new Date();
@@ -102,6 +161,10 @@ function WeeklyCalendar() {
         </div>
       </div>
 
+      {message && (
+        <div className="success-message">{message}</div>
+      )}
+
       <div className="calendar-grid">
         {weekDays.map((day, index) => {
           const dayTasks = tasksByDay[day.toDateString()] || [];
@@ -109,7 +172,13 @@ function WeeklyCalendar() {
           const totalMinutes = dayTasks.reduce((sum, t) => sum + (t.duration || 0), 0);
 
           return (
-            <div key={index} className={`calendar-day ${isToday ? 'today' : ''}`}>
+            <div 
+              key={index} 
+              className={`calendar-day ${isToday ? 'today' : ''} ${dragOverDay?.toDateString() === day.toDateString() ? 'drag-over' : ''}`}
+              onDragOver={(e) => handleDragOver(e, day)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, day)}
+            >
               {formatDayHeader(day)}
               
               <div className="day-workload">
@@ -130,8 +199,11 @@ function WeeklyCalendar() {
                   dayTasks.map(task => (
                     <div
                       key={task.id}
-                      className={`calendar-task ${task.is_completed ? 'completed' : ''}`}
+                      className={`calendar-task ${task.is_completed ? 'completed' : ''} ${draggedTask?.task.id === task.id ? 'dragging' : ''}`}
                       style={{ borderLeftColor: task.course_color || '#4a90a4' }}
+                      draggable={!task.is_completed}
+                      onDragStart={(e) => handleDragStart(e, task, day)}
+                      onDragEnd={handleDragEnd}
                     >
                       <div className="task-time">{formatTime(task.due_date)}</div>
                       <div className="task-title">{task.title}</div>
