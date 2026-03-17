@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const translations = {
   en: {
-    dashboard: 'Dashboard', tasks: 'Tasks', weekly: 'Weekly', today: 'Today',
+    dashboard: 'Dashboard', tasks: 'Tasks', weekly: 'Weekly', monthly: 'Monthly', today: 'Today',
     emailSync: 'Email Sync', addTask: '+ Add Task', profile: 'Profile', logout: 'Logout',
     changePassword: 'Change Password', welcome: 'Welcome', yourTasks: 'Your Tasks',
     noTasks: 'No tasks yet', addNewTask: 'Add New Task', editTask: 'Edit Task',
@@ -86,9 +86,10 @@ const translations = {
     askMeAnything: 'Ask me anything...',
     send: 'Send',
     noLanguagesFound: 'No languages found',
+    monthlyOverview: 'Monthly Overview',
   },
   es: {
-    dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', today: 'Hoy',
+    dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', monthly: 'Mensual', today: 'Hoy',
     emailSync: 'Sincronizar Email', addTask: '+ Agregar Tarea', profile: 'Perfil',
     logout: 'Cerrar Sesión', changePassword: 'Cambiar Contraseña', welcome: 'Bienvenido',
     yourTasks: 'Tus Tareas', noTasks: 'Sin tareas aún', addNewTask: 'Agregar Nueva Tarea',
@@ -111,10 +112,10 @@ const translations = {
     refresh: 'Actualizar', tasksPending: 'Tareas Pendientes', completedToday: 'Completadas Hoy',
     recommendedTaskOrder: 'Orden Recomendado', noTasks: 'Sin tareas', askMeAnything: 'Pregúntame...',
     send: 'Enviar', noLanguagesFound: 'No se encontraron idiomas', enterYourEmail: 'Tu email',
-    enterPassword: 'Contraseña', defaultDuration: '60',
+    enterPassword: 'Contraseña', defaultDuration: '60', monthlyOverview: 'Vista Mensual',
   },
   fr: {
-    dashboard: 'Tableau de Bord', tasks: 'Tâches', weekly: 'Hebdomadaire', today: "Aujourd'hui",
+    dashboard: 'Tableau de Bord', tasks: 'Tâches', weekly: 'Hebdomadaire', monthly: 'Mensuel', today: "Aujourd'hui",
     emailSync: 'Sync Email', addTask: '+ Ajouter Tâche', profile: 'Profil',
     logout: 'Déconnexion', changePassword: 'Changer le Mot de Passe', welcome: 'Bienvenue',
     yourTasks: 'Vos Tâches', noTasks: 'Pas encore de tâches', addNewTask: 'Ajouter Nouvelle Tâche',
@@ -137,10 +138,10 @@ const translations = {
     refresh: 'Actualiser', tasksPending: 'Tâches en attente', completedToday: "Terminées aujourd'hui",
     recommendedTaskOrder: 'Ordre recommandé', noTasks: 'Pas de tâches', askMeAnything: 'Demandez-moi...',
     send: 'Envoyer', noLanguagesFound: 'Aucune langue trouvée', enterYourEmail: 'Votre email',
-    enterPassword: 'Mot de passe', defaultDuration: '60',
+    enterPassword: 'Mot de passe', defaultDuration: '60', monthlyOverview: 'Vue Mensuelle',
   },
   ar: {
-    dashboard: 'لوحة التحكم', tasks: 'المهام', weekly: 'أسبوعي', today: 'اليوم',
+    dashboard: 'لوحة التحكم', tasks: 'المهام', weekly: 'أسبوعي', monthly: 'شهري', today: 'اليوم',
     emailSync: 'مزامنة البريد', addTask: '+ إضافة مهمة', profile: 'الملف الشخصي',
     logout: 'تسجيل الخروج', changePassword: 'تغيير كلمة المرور', welcome: 'مرحبا',
     yourTasks: 'مهامك', noTasks: 'لا توجد مهام بعد', addNewTask: 'إضافة مهمة جديدة',
