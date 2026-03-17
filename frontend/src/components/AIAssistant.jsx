@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useTasks } from '../hooks/useTasks';
+import { getTasks } from '../api';
 import AISettings from './AISettings';
 import './AIAssistant.css';
 
 function AIAssistant({ isOpen, onClose }) {
-  const { tasks } = useTasks();
+  const [tasks, setTasksLocal] = useState([]);
   const [messages, setMessages] = useState([
     { type: 'ai', text: "Hi! I'm your AI study assistant. I can help you with:\n• Scheduling & time management\n• Task organization tips\n• Productivity advice\n• Answer questions about your tasks\n\nWhat would you like help with?" }
   ]);
@@ -13,6 +13,14 @@ function AIAssistant({ isOpen, onClose }) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 380, height: 500 });
+
+  useEffect(() => {
+    if (isOpen) {
+      getTasks({})
+        .then(data => setTasksLocal(data || []))
+        .catch(() => setTasksLocal([]));
+    }
+  }, [isOpen]);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [showAISettings, setShowAISettings] = useState(false);
