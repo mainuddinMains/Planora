@@ -301,10 +301,10 @@ function AIAssistant({ isOpen, onClose }) {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask me anything..."
+          placeholder={t('askMeAnything') || 'Ask me anything...'}
           disabled={loading}
         />
-        <button type="submit" disabled={loading || !input.trim()}>Send</button>
+        <button type="submit" disabled={loading || !input.trim()}>{t('send') || 'Send'}</button>
       </form>
       
       {!isMaximized && (

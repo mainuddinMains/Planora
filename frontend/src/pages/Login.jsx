@@ -91,7 +91,7 @@ function Login() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="your@email.com"
+              placeholder={t('enterYourEmail')}
               required
               autoComplete="email"
             />
@@ -105,7 +105,7 @@ function Login() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder={t('enterPassword')}
               required
               autoComplete={isLogin ? 'current-password' : 'new-password'}
             />

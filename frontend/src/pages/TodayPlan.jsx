@@ -91,18 +91,18 @@ function TodayPlan() {
   const pendingCount = recommendations.filter(t => !t.is_completed).length;
 
   if (loading) {
-    return <div className="page">Generating your plan...</div>;
+    return <div className="page">{t('generatingPlan')}</div>;
   }
 
   return (
     <div className="page today-plan">
       <div className="plan-header">
         <div>
-          <h1>Today's Plan</h1>
-          <p>Hello {user?.name || 'Student'}, here's your prioritized task list</p>
+          <h1>{t('todaysPlan')}</h1>
+          <p>{t('welcome')}, {user?.name || 'Student'}, here's your prioritized task list</p>
         </div>
         <button onClick={fetchRecommendations} className="btn-secondary">
-          Refresh
+          {t('refresh') || 'Refresh'}
         </button>
       </div>
 
@@ -112,11 +112,11 @@ function TodayPlan() {
       <div className="plan-stats">
         <div className="stat-card">
           <span className="stat-value">{pendingCount}</span>
-          <span className="stat-label">Tasks Pending</span>
+          <span className="stat-label">{t('tasksPending')}</span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{completedCount}</span>
-          <span className="stat-label">Completed Today</span>
+          <span className="stat-label">{t('completedToday')}</span>
         </div>
         <div className="stat-card">
           <span className="stat-value">
@@ -130,15 +130,15 @@ function TodayPlan() {
       </div>
 
       <div className="recommendations-list">
-        <h2>Recommended Task Order</h2>
+        <h2>{t('recommendedTaskOrder') || 'Recommended Task Order'}</h2>
         <p className="recommendation-info">
-          Tasks are ranked by priority, urgency, and duration to help you focus on what matters most.
+          {t('tasksRanked')}
         </p>
 
         {recommendations.length === 0 ? (
           <div className="empty-state">
-            <p>No pending tasks! You're all caught up.</p>
-            <p>Add tasks from the Dashboard to get personalized recommendations.</p>
+            <p>{t('noPendingTasks')}</p>
+            <p>{t('addTasksFromDashboard')}</p>
           </div>
         ) : (
           recommendations.map((task, index) => {
