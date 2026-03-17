@@ -129,7 +129,7 @@ function TaskForm({ onSubmit, initialData = null, onCancel }) {
             value={formData.duration}
             onChange={handleChange}
             min="1"
-            placeholder="60"
+            placeholder={t('defaultDuration')}
           />
         </div>
       </div>

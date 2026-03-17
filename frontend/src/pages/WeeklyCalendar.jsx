@@ -70,7 +70,7 @@ function WeeklyCalendar() {
   };
 
   if (loading) {
-    return <div className="page">Loading calendar...</div>;
+    return <div className="page">{t('loadingCalendar')}</div>;
   }
 
   if (error) {
@@ -80,16 +80,16 @@ function WeeklyCalendar() {
   return (
     <div className="page weekly-calendar">
       <div className="calendar-header">
-        <h1>Weekly Calendar</h1>
+        <h1>{t('weeklyOverview')}</h1>
         <div className="week-navigation">
           <button onClick={goToPreviousWeek} className="btn-secondary">
-            Previous
+            {t('previousWeek')}
           </button>
           <button onClick={goToCurrentWeek} className="btn-secondary">
-            Today
+            {t('thisWeek')}
           </button>
           <button onClick={goToNextWeek} className="btn-secondary">
-            Next
+            {t('nextWeek')}
           </button>
         </div>
       </div>
@@ -97,8 +97,8 @@ function WeeklyCalendar() {
       <div className="week-info">
         <h2>{formatWeekRange()}</h2>
         <div className="week-stats">
-          <span className="stat">{getTaskCount()} tasks</span>
-          <span className="stat">{Math.round(getTotalDuration() / 60)}h workload</span>
+          <span className="stat">{getTaskCount()} {t('tasks')}</span>
+          <span className="stat">{Math.round(getTotalDuration() / 60)}{t('hours')}</span>
         </div>
       </div>
 
@@ -125,7 +125,7 @@ function WeeklyCalendar() {
 
               <div className="day-tasks">
                 {dayTasks.length === 0 ? (
-                  <div className="no-tasks">No tasks</div>
+                  <div className="no-tasks">{t('noTasks')}</div>
                 ) : (
                   dayTasks.map(task => (
                     <div

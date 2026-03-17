@@ -155,7 +155,7 @@ function NavBar({ onOpenFocusTimer }) {
                   </button>
                 ))}
                 {filteredLanguages.length === 0 && (
-                  <div className="language-no-results">No languages found</div>
+                  <div className="language-no-results">{t('noLanguagesFound') || 'No languages found'}</div>
                 )}
               </div>
             </div>
