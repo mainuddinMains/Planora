@@ -27,7 +27,7 @@ try {
 
 const app = express();
 
-const devOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const devOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
 const envOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
@@ -38,7 +38,7 @@ const allowedOrigins =
     ? [process.env.FRONTEND_URL].filter(Boolean)
     : [...new Set([...devOrigins, ...envOrigins])];
 
-const devIpOriginRegex = /^http:\/\/(\d{1,3}\.){3}\d{1,3}:3000$/;
+const devIpOriginRegex = /^http:\/\/(\d{1,3}\.){3}\d{1,3}:(3000|5173)$/;
 
 app.use(
   cors({
