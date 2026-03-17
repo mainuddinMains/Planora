@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import WeeklyCalendar from './pages/WeeklyCalendar';
+import MonthlyCalendar from './pages/MonthlyCalendar';
 import TodayPlan from './pages/TodayPlan';
 import EmailSync from './pages/EmailSync';
 import './App.css';
@@ -112,6 +113,7 @@ function NavBar({ onOpenFocusTimer }) {
           <Link to="/">{t('dashboard')}</Link>
           <Link to="/tasks">{t('tasks')}</Link>
           <Link to="/weekly">{t('weekly')}</Link>
+          <Link to="/monthly">{t('monthly')}</Link>
           <Link to="/today">{t('today')}</Link>
           <Link to="/email-sync">{t('emailSync')}</Link>
         </div>
@@ -259,6 +261,9 @@ function AppRoutes() {
         } />
         <Route path="/weekly" element={
           <PrivateRoute><WeeklyCalendar /></PrivateRoute>
+        } />
+        <Route path="/monthly" element={
+          <PrivateRoute><MonthlyCalendar /></PrivateRoute>
         } />
         <Route path="/today" element={
           <PrivateRoute><TodayPlan /></PrivateRoute>
