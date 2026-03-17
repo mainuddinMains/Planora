@@ -910,6 +910,33 @@ nav a:hover {
   background: #f9fafb;
   border-radius: 0 4px 4px 0;
   font-size: 0.875rem;
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.calendar-task:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.calendar-task:active {
+  cursor: grabbing;
+}
+
+.calendar-task.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.calendar-day.drag-over {
+  background: #e0f2fe;
+  border: 2px dashed #0284c7;
+}
+
+.calendar-day.drag-over .day-tasks {
+  background: #bae6fd;
 }
 
 .calendar-task.completed {
