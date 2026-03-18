@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks';
 import { useLanguage } from '../hooks/useLanguage';
-import { getTodayRecommendations, updateTask } from '../api';
+import {formatDueDate, getTodayRecommendations, updateTask, TaskListSortMethod, sortedTaskList} from '../api'
 
 function TodayPlan() {
   const { user } = useAuth();
@@ -10,6 +10,7 @@ function TodayPlan() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
+  const [sortBy, setSortBy] = useState(TaskListSortMethod.PRIORITY);
 
   useEffect(() => {
     fetchRecommendations();
@@ -41,29 +42,6 @@ function TodayPlan() {
     } catch (err) {
       setError('Failed to update task: ' + err.message);
     }
-  };
-
-  const formatDueDate = (dateString) => {
-    if (!dateString) return { text: 'No due date', urgent: false };
-
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = date - now;
-    const diffHours = diffMs / (1000 * 60 * 60);
-
-    if (diffMs < 0) {
-      return { text: 'Overdue', urgent: true };
-    }
-    if (diffHours <= 6) {
-      return { text: 'Due soon', urgent: true };
-    }
-    if (diffHours <= 24) {
-      return { text: 'Due today', urgent: false };
-    }
-    return {
-      text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      urgent: false
-    };
   };
 
   const getPriorityClass = (priority) => {
@@ -135,13 +113,23 @@ function TodayPlan() {
           {t('tasksRanked')}
         </p>
 
+        <div className="sort-controls">
+          <label htmlFor="sort-select">{(t('sortBy') || 'Sort by') + ' '}</label>
+          <select id="sort-select" onChange={(e) => setSortBy(e.target.value)} defaultValue="priority">
+            <option value={TaskListSortMethod.PRIORITY.name}>{t(TaskListSortMethod.PRIORITY.name) || TaskListSortMethod.PRIORITY.name}</option>
+            <option value={TaskListSortMethod.DATE.name}>{t(TaskListSortMethod.DATE.name) || TaskListSortMethod.DATE.name}</option>
+            <option value={TaskListSortMethod.DURATION.name}>{t(TaskListSortMethod.DURATION.name) || TaskListSortMethod.DURATION.name}</option>
+            <option value={TaskListSortMethod.TITLE.name}>{t(TaskListSortMethod.TITLE.name) || TaskListSortMethod.TITLE.name}</option>
+          </select>
+        </div>
+
         {recommendations.length === 0 ? (
           <div className="empty-state">
             <p>{t('noPendingTasks')}</p>
             <p>{t('addTasksFromDashboard')}</p>
           </div>
         ) : (
-          recommendations.map((task, index) => {
+          sortedTaskList(recommendations, sortBy).map((task, index) => {
             const dueInfo = formatDueDate(task.due_date);
 
             return (
