@@ -11,6 +11,7 @@ function TodayPlan() {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
   const [sortBy, setSortBy] = useState(TaskListSortMethod.PRIORITY);
+  const [sortDescending, setSortDescending] = useState(true);
 
   useEffect(() => {
     fetchRecommendations();
@@ -113,7 +114,7 @@ function TodayPlan() {
           {t('tasksRanked')}
         </p>
 
-        <div className="sort-controls">
+        <div className="sort-controls" style={{ marginBottom: '1rem' }}>
           <label htmlFor="sort-select">{(t('sortBy') || 'Sort by') + ' '}</label>
           <select id="sort-select" onChange={(e) => setSortBy(e.target.value)} defaultValue="priority">
             <option value={TaskListSortMethod.PRIORITY.name}>{t(TaskListSortMethod.PRIORITY.name) || TaskListSortMethod.PRIORITY.name}</option>
@@ -121,6 +122,16 @@ function TodayPlan() {
             <option value={TaskListSortMethod.DURATION.name}>{t(TaskListSortMethod.DURATION.name) || TaskListSortMethod.DURATION.name}</option>
             <option value={TaskListSortMethod.TITLE.name}>{t(TaskListSortMethod.TITLE.name) || TaskListSortMethod.TITLE.name}</option>
           </select>
+          <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => {setSortDescending(!sortDescending)}}
+          aria-label={sortDescending ? "Switch to ascending sort" : "Switch to descending sort"}
+          title={sortDescending ? "Descending" : "Ascending"}
+          style={{"padding": "0.25rem 1rem", "margin-left": "1rem",}}
+          >
+            {sortDescending ? "↓" : "↑"}
+          </button>
         </div>
 
         {recommendations.length === 0 ? (
@@ -129,7 +140,7 @@ function TodayPlan() {
             <p>{t('addTasksFromDashboard')}</p>
           </div>
         ) : (
-          sortedTaskList(recommendations, sortBy).map((task, index) => {
+          sortedTaskList(recommendations, sortBy, sortDescending).map((task, index) => {
             const dueInfo = formatDueDate(task.due_date);
 
             return (
