@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks';
 import { useLanguage } from '../hooks/useLanguage';
-import {formatDueDate, getTodayRecommendations, updateTask, TaskListSortMethod, sortedTaskList} from '../api'
+import {
+  formatDueDate,
+  getTodayRecommendations,
+  updateTask,
+  TaskListSortMethod,
+  sortedTaskList,
+  groupedTaskLists, TaskListGroupMethod
+} from '../api'
 
 function TodayPlan() {
   const { user } = useAuth();
@@ -12,6 +19,7 @@ function TodayPlan() {
   const [message, setMessage] = useState('');
   const [sortBy, setSortBy] = useState(TaskListSortMethod.PRIORITY);
   const [sortDescending, setSortDescending] = useState(true);
+  const [groupBy, setGroupBy] = useState(TaskListGroupMethod.COMPLETED);
 
   useEffect(() => {
     fetchRecommendations();
@@ -114,7 +122,7 @@ function TodayPlan() {
           {t('tasksRanked')}
         </p>
 
-        <div className="sort-controls" style={{ marginBottom: '1rem' }}>
+        <div className="task-list-controls">
           <label htmlFor="sort-select">{(t('sortBy') || 'Sort by') + ' '}</label>
           <select id="sort-select" onChange={(e) => setSortBy(e.target.value)} defaultValue="priority">
             <option value={TaskListSortMethod.PRIORITY.name}>{t(TaskListSortMethod.PRIORITY.name) || TaskListSortMethod.PRIORITY.name}</option>
@@ -128,10 +136,19 @@ function TodayPlan() {
           onClick={() => {setSortDescending(!sortDescending)}}
           aria-label={sortDescending ? "Switch to ascending sort" : "Switch to descending sort"}
           title={sortDescending ? "Descending" : "Ascending"}
-          style={{"padding": "0.25rem 1rem", "margin-left": "1rem",}}
+          style={{"padding": "0.25rem 1rem", "marginLeft": "1rem",}}
           >
             {sortDescending ? "↓" : "↑"}
           </button>
+        </div>
+
+        <div className="task-list-controls">
+          <label htmlFor="group-select">{(t('groupBy' || 'Group by'))}</label>
+          <select id="group-select" onChange={(e) => setGroupBy(e.target.value)} defaultValue="completed">
+            <option value={'completed'}>{t('completionStatus') || 'Completion Status'}</option>
+            <option value={'course'}>{t('course') || 'Course'}</option>
+            <option value={'priority'}>{t('priority') || 'Priority'}</option>
+          </select>
         </div>
 
         {recommendations.length === 0 ? (
@@ -140,59 +157,65 @@ function TodayPlan() {
             <p>{t('addTasksFromDashboard')}</p>
           </div>
         ) : (
-          sortedTaskList(recommendations, sortBy, sortDescending).map((task, index) => {
-            const dueInfo = formatDueDate(task.due_date);
+          groupedTaskLists(recommendations, groupBy).map((taskList) =>
+            (
+              <div>
+                {sortedTaskList(taskList.tasks, sortBy, sortDescending).map((task, index) => {
+                  const dueInfo = formatDueDate(task.due_date);
 
-            return (
-              <div
-                key={task.id}
-                className={`recommendation-card ${task.is_completed ? 'completed' : ''}`}
-              >
-                <div className="recommendation-rank">
-                  <span className="rank-number">{index + 1}</span>
-                </div>
+                  return (
+                    <div
+                      key={task.id}
+                      className={`recommendation-card ${task.is_completed ? 'completed' : ''}`}
+                    >
+                      <div className="recommendation-rank">
+                        <span className="rank-number">{index + 1}</span>
+                      </div>
 
-                <div className="recommendation-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={task.is_completed}
-                    onChange={() => handleComplete(task.id, !task.is_completed)}
-                  />
-                </div>
+                      <div className="recommendation-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={task.is_completed}
+                          onChange={() => handleComplete(task.id, !task.is_completed)}
+                        />
+                      </div>
 
-                <div className="recommendation-content">
-                  <div className="recommendation-header">
-                    <h3 className="recommendation-title">{task.title}</h3>
-                    <span className={`task-priority ${getPriorityClass(task.priority)}`}>
-                      {task.priority}
-                    </span>
-                  </div>
+                      <div className="recommendation-content">
+                        <div className="recommendation-header">
+                          <h3 className="recommendation-title">{task.title}</h3>
+                          <span className={`task-priority ${getPriorityClass(task.priority)}`}>
+                          {task.priority}
+                        </span>
+                        </div>
 
-                  <div className="recommendation-meta">
-                    {task.course_name && (
-                      <span
-                        className="task-course"
-                        style={{ backgroundColor: task.course_color || '#4a90a4' }}
-                      >
-                        {task.course_name}
-                      </span>
-                    )}
-                    <span className={`task-due ${dueInfo.urgent ? 'urgent' : ''}`}>
-                      {dueInfo.text}
-                    </span>
-                    {task.duration && (
-                      <span className="task-duration">{task.duration} min</span>
-                    )}
-                  </div>
-                </div>
+                        <div className="recommendation-meta">
+                          {task.course_name && (
+                            <span
+                              className="task-course"
+                              style={{backgroundColor: task.course_color || '#4a90a4'}}
+                            >
+                          {task.course_name}
+                        </span>
+                          )}
+                          <span className={`task-due ${dueInfo.urgent ? 'urgent' : ''}`}>
+                          {dueInfo.text}
+                        </span>
+                          {task.duration && (
+                            <span className="task-duration">{task.duration} min</span>
+                          )}
+                        </div>
+                      </div>
 
-                <div className="recommendation-score">
-                  <span className="score-value">{task.score?.toFixed(1)}</span>
-                  <span className="score-label">{getScoreLabel(task.score)}</span>
-                </div>
+                      <div className="recommendation-score">
+                        <span className="score-value">{task.score?.toFixed(1)}</span>
+                        <span className="score-label">{getScoreLabel(task.score)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })
+            )
+          )
         )}
       </div>
     </div>

@@ -256,7 +256,7 @@ export function sortedTaskList(list, method = TaskListSortMethod.PRIORITY, rever
   if (reverse) {
     sortedList.reverse();
   }
-  console.log(sortedList);
+
   return sortedList;
 }
 
@@ -282,3 +282,37 @@ export const formatDueDate = (dateString) => {
     urgent: false
   };
 };
+
+export const TaskListGroupMethod = Object.freeze({
+  COMPLETED: {
+    name: "completed",
+    method: (a) => a.is_completed,
+  },
+  COURSE: {
+    name: "course",
+    method: (a) => a.course_name || 'No Course',
+  },
+  PRIORITY: {
+    name: "priority",
+    method: (a) => a.priority,
+  },
+})
+
+export function groupedTaskLists(list, method = TaskListGroupMethod.COMPLETED) {
+  if (typeof method === 'string') {
+    method = Object.values(TaskListGroupMethod).find(m => m.name === method);
+  }
+
+  let taskListGroups = [];
+  list.forEach(task => {
+    const groupKey = method.method(task);
+    let group = taskListGroups.find(g => g.key === groupKey);
+    if (!group) {
+      group = { key: groupKey, tasks: [] };
+      taskListGroups.push(group);
+    }
+    group.tasks.push(task);
+  });
+
+  return taskListGroups;
+}
