@@ -85,11 +85,13 @@ async function getAccessToken(tokenRow, db) {
 }
 
 async function listUpcomingEvents(accessToken, maxResults = 20) {
-  const now = new Date().toISOString();
+  // Use start of today so events that already started today are still shown
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
   const response = await axios.get(`${CALENDAR_API}/calendars/primary/events`, {
     headers: { Authorization: `Bearer ${accessToken}` },
     params: {
-      timeMin: now,
+      timeMin: startOfToday.toISOString(),
       maxResults,
       singleEvents: true,
       orderBy: 'startTime',
@@ -107,6 +109,22 @@ async function createEvent(accessToken, event) {
   return response.data;
 }
 
+async function updateEvent(accessToken, eventId, event) {
+  const response = await axios.put(
+    `${CALENDAR_API}/calendars/primary/events/${eventId}`,
+    event,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+  return response.data;
+}
+
+async function deleteEvent(accessToken, eventId) {
+  await axios.delete(
+    `${CALENDAR_API}/calendars/primary/events/${eventId}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+}
+
 module.exports = {
   getAuthUrl,
   getTokenFromCode,
@@ -115,5 +133,7 @@ module.exports = {
   getAccessToken,
   listUpcomingEvents,
   createEvent,
+  updateEvent,
+  deleteEvent,
   REDIRECT_URI,
 };

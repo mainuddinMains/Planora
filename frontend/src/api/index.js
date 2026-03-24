@@ -247,8 +247,29 @@ export async function disconnectGoogleCalendar() {
   return fetchApi('/google-calendar/disconnect', { method: 'POST' });
 }
 
-export async function getGoogleCalendarEvents(maxResults = 20) {
-  return fetchApi(`/google-calendar/events?maxResults=${maxResults}`);
+export async function getGoogleCalendarEvents(year, month) {
+  if (year && month) {
+    return fetchApi(`/google-calendar/events?year=${year}&month=${month}`);
+  }
+  return fetchApi(`/google-calendar/events`);
+}
+
+export async function createGoogleCalendarEvent(event) {
+  return fetchApi('/google-calendar/events', {
+    method: 'POST',
+    body: JSON.stringify(event),
+  });
+}
+
+export async function updateGoogleCalendarEvent(eventId, event) {
+  return fetchApi(`/google-calendar/events/${eventId}`, {
+    method: 'PUT',
+    body: JSON.stringify(event),
+  });
+}
+
+export async function deleteGoogleCalendarEvent(eventId) {
+  return fetchApi(`/google-calendar/events/${eventId}`, { method: 'DELETE' });
 }
 
 export async function exportTaskToGoogleCalendar(taskId) {

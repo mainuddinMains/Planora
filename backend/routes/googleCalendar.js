@@ -73,7 +73,7 @@ router.post('/disconnect', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/google-calendar/events
+// GET /api/google-calendar/events  — fetch events for a given month (or upcoming)
 router.get('/events', requireAuth, async (req, res) => {
   try {
     const result = await db.query(
@@ -84,13 +84,78 @@ router.get('/events', requireAuth, async (req, res) => {
 
     const tokenRow = result.rows[0];
     const accessToken = await googleOAuth.getAccessToken(tokenRow, db);
-    const maxResults = parseInt(req.query.maxResults) || 20;
-    const events = await googleOAuth.listUpcomingEvents(accessToken, maxResults);
 
-    res.json({ events });
+    // Support ?year=2026&month=3 for full month fetching
+    const axios = require('axios');
+    let timeMin, timeMax;
+    if (req.query.year && req.query.month) {
+      const year = parseInt(req.query.year);
+      const month = parseInt(req.query.month) - 1; // JS months 0-indexed
+      timeMin = new Date(year, month, 1);
+      timeMax = new Date(year, month + 1, 0, 23, 59, 59);
+    } else {
+      timeMin = new Date();
+      timeMin.setHours(0, 0, 0, 0);
+      timeMax = new Date(timeMin);
+      timeMax.setDate(timeMax.getDate() + 60);
+    }
+
+    const response = await axios.get('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      params: {
+        timeMin: timeMin.toISOString(),
+        timeMax: timeMax.toISOString(),
+        maxResults: 250,
+        singleEvents: true,
+        orderBy: 'startTime',
+      },
+    });
+    res.json({ events: response.data.items || [] });
   } catch (err) {
     console.error('Google events error:', err.response?.data || err.message);
     res.status(500).json({ error: err.message || 'Failed to fetch events' });
+  }
+});
+
+// POST /api/google-calendar/events — create a new event
+router.post('/events', requireAuth, async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM google_calendar_tokens WHERE user_id = $1', [req.user.userId]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Google Calendar not connected' });
+    const accessToken = await googleOAuth.getAccessToken(result.rows[0], db);
+    const event = await googleOAuth.createEvent(accessToken, req.body);
+    res.json(event);
+  } catch (err) {
+    console.error('Google create event error:', err.response?.data || err.message);
+    res.status(500).json({ error: err.message || 'Failed to create event' });
+  }
+});
+
+// PUT /api/google-calendar/events/:eventId — update an event
+router.put('/events/:eventId', requireAuth, async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM google_calendar_tokens WHERE user_id = $1', [req.user.userId]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Google Calendar not connected' });
+    const accessToken = await googleOAuth.getAccessToken(result.rows[0], db);
+    const event = await googleOAuth.updateEvent(accessToken, req.params.eventId, req.body);
+    res.json(event);
+  } catch (err) {
+    console.error('Google update event error:', err.response?.data || err.message);
+    res.status(500).json({ error: err.message || 'Failed to update event' });
+  }
+});
+
+// DELETE /api/google-calendar/events/:eventId — delete an event
+router.delete('/events/:eventId', requireAuth, async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM google_calendar_tokens WHERE user_id = $1', [req.user.userId]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Google Calendar not connected' });
+    const accessToken = await googleOAuth.getAccessToken(result.rows[0], db);
+    await googleOAuth.deleteEvent(accessToken, req.params.eventId);
+    res.json({ message: 'Event deleted' });
+  } catch (err) {
+    console.error('Google delete event error:', err.response?.data || err.message);
+    res.status(500).json({ error: err.message || 'Failed to delete event' });
   }
 });
 
