@@ -83,3 +83,17 @@ CREATE TABLE IF NOT EXISTS email_sources (
 );
 
 CREATE INDEX idx_email_sources_user ON email_sources(user_id);
+
+CREATE TABLE IF NOT EXISTS google_calendar_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  access_token TEXT NOT NULL,
+  refresh_token TEXT,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  email VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id)
+);
+
+CREATE INDEX idx_google_calendar_tokens_user ON google_calendar_tokens(user_id);

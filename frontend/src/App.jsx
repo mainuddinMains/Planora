@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
-import { connectMicrosoftAccount } from './api';
+import { connectMicrosoftAccount, connectGoogleCalendar } from './api';
+import { useDarkMode } from './hooks/useDarkMode';
 import Login from './pages/Login';
+import GoogleCalendar from './pages/GoogleCalendar';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import WeeklyCalendar from './pages/WeeklyCalendar';
@@ -23,14 +25,27 @@ function OAuthCallback() {
     if (code && localStorage.getItem('microsoft_oauth_pending') === 'true' && !processed) {
       localStorage.removeItem('microsoft_oauth_pending');
       window.history.replaceState({}, document.title, '/email-sync');
-      
       connectMicrosoftAccount(code)
         .then(() => {
           setProcessed(true);
           window.dispatchEvent(new Event('microsoftAccountConnected'));
         })
         .catch(err => {
-          console.error('OAuth error:', err);
+          console.error('Microsoft OAuth error:', err);
+          setProcessed(true);
+        });
+    }
+
+    if (code && localStorage.getItem('google_calendar_pending') === 'true' && !processed) {
+      localStorage.removeItem('google_calendar_pending');
+      window.history.replaceState({}, document.title, '/google-calendar');
+      connectGoogleCalendar(code)
+        .then(() => {
+          setProcessed(true);
+          window.dispatchEvent(new Event('googleCalendarConnected'));
+        })
+        .catch(err => {
+          console.error('Google OAuth error:', err);
           setProcessed(true);
         });
     }
@@ -50,6 +65,7 @@ function PrivateRoute({ children }) {
 function NavBar({ onOpenFocusTimer }) {
   const { user, logout, showWelcome } = useAuth();
   const { t, language, setLanguage } = useLanguage();
+  const [isDark, toggleDark] = useDarkMode();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
@@ -116,12 +132,16 @@ function NavBar({ onOpenFocusTimer }) {
           <Link to="/monthly">{t('monthly')}</Link>
           <Link to="/today">{t('today')}</Link>
           <Link to="/email-sync">{t('emailSync')}</Link>
+          <Link to="/google-calendar">📅 {t('googleCalendar')}</Link>
         </div>
       </div>
       <div className="nav-right">
         <button className="btn-add-task" onClick={handleAddTask}>{t('addTask')}</button>
         <button className="btn-chatbot" onClick={handleOpenChatbot} title={t('aiAssistant')}>🤖</button>
         <button className="btn-focus" onClick={onOpenFocusTimer} title={t('focusMode')}>🎯</button>
+        <button className="btn-dark-toggle" onClick={toggleDark} title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+          {isDark ? '☀️' : '🌙'}
+        </button>
         
         <div className="language-selector" ref={languageRef}>
           <button 
@@ -268,12 +288,21 @@ function AppRoutes() {
         <Route path="/today" element={
           <PrivateRoute><TodayPlan /></PrivateRoute>
         } />
+        <Route path="/google-calendar" element={
+          <PrivateRoute><GoogleCalendar /></PrivateRoute>
+        } />
       </Routes>
     </>
   );
 }
 
 function App() {
+  // Apply dark mode on initial render before any component mounts
+  const saved = localStorage.getItem('darkMode');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved !== null ? saved === 'true' : prefersDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
   return (
     <Router>
       <LanguageProvider>

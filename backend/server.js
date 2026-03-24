@@ -9,6 +9,8 @@ const recommendationRoutes = require('./routes/recommendations');
 const notificationRoutes = require('./routes/notifications');
 const { startNotificationJobs } = require('./jobs/notificationJob');
 
+const googleCalendarRoutes = require('./routes/googleCalendar');
+
 let emailSourceRoutes = null;
 let emailSyncRoutes = null;
 let microsoftAuthRoutes = null;
@@ -72,6 +74,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/google-calendar', googleCalendarRoutes);
 
 if (emailSourceRoutes && emailSyncRoutes) {
   app.use('/api/email_sources', emailSourceRoutes);

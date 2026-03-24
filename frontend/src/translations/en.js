@@ -175,4 +175,13 @@ export default {
   send: 'Send',
   noLanguagesFound: 'No languages found',
   monthlyOverview: 'Monthly Overview',
+  googleCalendar: 'Google Calendar',
+  googleCalendarDesc: 'View your Google Calendar events and export tasks to your calendar',
+  connectGoogle: 'Connect Google Calendar',
+  googleCalendarConnectHint: 'Sign in with Google to sync your calendar events and export tasks directly to Google Calendar.',
+  upcomingEvents: 'Upcoming Events',
+  noUpcomingEvents: 'No upcoming events found.',
+  exportTasksToCalendar: 'Export Tasks to Google Calendar',
+  exportTasksHint: 'Click the export button next to any task to add it as an event in your Google Calendar.',
+  exportToCalendar: 'Export',
 };

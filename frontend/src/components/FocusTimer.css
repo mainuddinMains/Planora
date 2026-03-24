@@ -220,3 +220,41 @@
   border-top: 1px solid var(--border-color, #e0e0e0);
   color: var(--text-secondary, #666);
 }
+
+[data-theme="dark"] .focus-timer-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .focus-timer-header h2 {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .notification-prompt {
+  background: rgba(125, 211, 232, 0.08);
+}
+
+[data-theme="dark"] .timer-bg {
+  stroke: #334155;
+}
+
+[data-theme="dark"] .preset-buttons button {
+  border-color: #475569;
+  background: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .custom-time-input input {
+  background: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .custom-time-input button:last-of-type {
+  background: #475569;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .focus-stats {
+  border-top-color: #334155;
+}

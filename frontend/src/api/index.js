@@ -227,3 +227,30 @@ export async function getMicrosoftStatus() {
 export async function disconnectMicrosoftAccount() {
   return fetchApi('/microsoft/disconnect', { method: 'POST' });
 }
+
+export async function getGoogleCalendarAuthUrl() {
+  return fetchApi('/google-calendar/auth-url');
+}
+
+export async function connectGoogleCalendar(code) {
+  return fetchApi('/google-calendar/token', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function getGoogleCalendarStatus() {
+  return fetchApi('/google-calendar/status');
+}
+
+export async function disconnectGoogleCalendar() {
+  return fetchApi('/google-calendar/disconnect', { method: 'POST' });
+}
+
+export async function getGoogleCalendarEvents(maxResults = 20) {
+  return fetchApi(`/google-calendar/events?maxResults=${maxResults}`);
+}
+
+export async function exportTaskToGoogleCalendar(taskId) {
+  return fetchApi(`/google-calendar/export-task/${taskId}`, { method: 'POST' });
+}
