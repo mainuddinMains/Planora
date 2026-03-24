@@ -13,6 +13,14 @@ function AISettings({ isOpen, onClose, connectedAccounts, onConnect, onDisconnec
 
   const aiProviders = [
     {
+      id: 'openrouter',
+      name: 'OpenRouter',
+      icon: '🔀',
+      description: 'Access 100+ AI models (GPT-4, Claude, Gemini, etc.) with one API key from openrouter.ai',
+      color: '#6366f1',
+      hasApiKey: true,
+    },
+    {
       id: 'openai',
       name: 'ChatGPT',
       icon: '🤖',
