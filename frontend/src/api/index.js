@@ -11,13 +11,25 @@ async function fetchApi(endpoint, options = {}) {
       },
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type') || '';
+    const rawBody = await response.text();
+    let data = null;
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
+    if (rawBody) {
+      if (contentType.includes('application/json')) {
+        data = JSON.parse(rawBody);
+      } else {
+        throw new Error(
+          `Unexpected response from ${API_BASE_URL}${endpoint}. The backend may need a restart, or the API URL may be pointing at the frontend server.`
+        );
+      }
     }
 
-    return data;
+    if (!response.ok) {
+      throw new Error(data?.error || `Request failed with status ${response.status}`);
+    }
+
+    return data || {};
   } catch (error) {
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
       throw new Error('Cannot connect to server. Make sure the backend is running on port 5001.');
@@ -55,6 +67,17 @@ export async function logout() {
 
 export async function getCurrentUser() {
   return fetchApi('/auth/me');
+}
+
+export async function getGoogleLoginAuthUrl() {
+  return fetchApi('/auth/google/auth-url');
+}
+
+export async function loginWithGoogle(code, state) {
+  return fetchApi('/auth/google/login', {
+    method: 'POST',
+    body: JSON.stringify({ code, state }),
+  });
 }
 
 export async function getTasks(filters = {}) {
@@ -181,6 +204,8 @@ export default {
   login,
   logout,
   getCurrentUser,
+  getGoogleLoginAuthUrl,
+  loginWithGoogle,
   getTasks,
   getTask,
   createTask,

@@ -7,6 +7,7 @@ Planora is a smart academic planning web application that helps students manage 
 ## Features
 
 - **User Authentication** - Secure JWT-based authentication with httpOnly cookies
+- **Google Sign-In** - Continue with Google on the login page, with account linking by verified email
 - **Task & Course Management** - Create, update, delete, and track tasks by course and priority
 - **AI Study Assistant** - In-app assistant for task insights, scheduling tips, and productivity guidance
 - **Today + Weekly Planning** - Recommendation engine for daily priorities and weekly workload
@@ -373,6 +374,11 @@ CORS_ORIGINS=http://localhost:3000
 MICROSOFT_CLIENT_ID=
 MICROSOFT_CLIENT_SECRET=
 MICROSOFT_TENANT_ID=
+
+# Optional: required for Google sign-in and Google Calendar
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:3000/google-callback
 ```
 
 ### 6. Install Frontend Dependencies
@@ -398,6 +404,15 @@ If you want email sync enabled:
 2. Add redirect URI: `http://localhost:3000`
 3. Grant delegated scopes: `Mail.Read` and `offline_access`
 4. Copy credentials into `backend/.env` (`MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`, `MICROSOFT_TENANT_ID`)
+
+### 9. (Optional) Google OAuth Setup
+
+If you want Google sign-in or Google Calendar enabled:
+
+1. Create an OAuth client in Google Cloud Console
+2. Add redirect URI: `http://localhost:3000/google-callback`
+3. Enable the Google Calendar API if you want calendar sync
+4. Copy credentials into `backend/.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`)
 
 ## Running the Application
 

@@ -9,31 +9,68 @@ const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const CALENDAR_API = 'https://www.googleapis.com/calendar/v3';
 const USERINFO_API = 'https://www.googleapis.com/oauth2/v3/userinfo';
 
-const SCOPES = [
+const LOGIN_SCOPES = [
   'openid',
   'email',
+  'profile',
+].join(' ');
+
+const CALENDAR_SCOPES = [
+  'openid',
+  'email',
+  'profile',
   'https://www.googleapis.com/auth/calendar',
 ].join(' ');
 
-function getAuthUrl(state) {
+function buildAuthUrl({
+  state = '',
+  scope = CALENDAR_SCOPES,
+  prompt = 'consent',
+  accessType,
+  redirectUri = REDIRECT_URI,
+} = {}) {
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: redirectUri,
     response_type: 'code',
-    scope: SCOPES,
-    access_type: 'offline',
-    prompt: 'consent',
+    scope,
     state: state || '',
   });
+
+  if (accessType) {
+    params.set('access_type', accessType);
+  }
+
+  if (prompt) {
+    params.set('prompt', prompt);
+  }
+
   return `${AUTH_URL}?${params.toString()}`;
 }
 
-async function getTokenFromCode(authCode) {
+function getAuthUrl(state) {
+  return buildAuthUrl({
+    state,
+    scope: CALENDAR_SCOPES,
+    accessType: 'offline',
+    prompt: 'consent',
+  });
+}
+
+function getLoginAuthUrl(state) {
+  return buildAuthUrl({
+    state,
+    scope: LOGIN_SCOPES,
+    prompt: 'select_account',
+  });
+}
+
+async function getTokenFromCode(authCode, redirectUri = REDIRECT_URI) {
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
     code: authCode,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: redirectUri,
     grant_type: 'authorization_code',
   });
 
@@ -125,8 +162,13 @@ async function deleteEvent(accessToken, eventId) {
   );
 }
 
+function isConfigured() {
+  return Boolean(CLIENT_ID && CLIENT_SECRET && REDIRECT_URI);
+}
+
 module.exports = {
   getAuthUrl,
+  getLoginAuthUrl,
   getTokenFromCode,
   refreshAccessToken,
   getUserInfo,
@@ -135,5 +177,6 @@ module.exports = {
   createEvent,
   updateEvent,
   deleteEvent,
+  isConfigured,
   REDIRECT_URI,
 };

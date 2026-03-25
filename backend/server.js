@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const { ensureSchema } = require('./db/ensureSchema');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const courseRoutes = require('./routes/courses');
@@ -91,13 +92,23 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 
-  if (process.env.NODE_ENV !== 'test') {
-    startNotificationJobs();
-    if (startEmailSyncJobs) {
-      startEmailSyncJobs();
+async function startServer() {
+  await ensureSchema();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+
+    if (process.env.NODE_ENV !== 'test') {
+      startNotificationJobs();
+      if (startEmailSyncJobs) {
+        startEmailSyncJobs();
+      }
     }
-  }
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });

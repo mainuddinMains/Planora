@@ -163,6 +163,8 @@ export default {
   tasksManagement: 'Tasks management page placeholder',
   enterYourEmail: 'Enter your email',
   enterPassword: 'Enter password',
+  continueWithGoogle: 'Continue with Google',
+  orContinueWith: 'or continue with',
   defaultDuration: '60',
   refresh: 'Refresh',
   tasksPending: 'Tasks Pending',

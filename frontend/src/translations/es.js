@@ -71,6 +71,8 @@ export default {
   noLanguagesFound: 'No se encontraron idiomas',
   enterYourEmail: 'Tu email',
   enterPassword: 'Contraseña',
+  continueWithGoogle: 'Continuar con Google',
+  orContinueWith: 'o continuar con',
   defaultDuration: '60',
   monthlyOverview: 'Vista Mensual',
 };

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { login, register } from '../api';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getGoogleLoginAuthUrl, login, register } from '../api';
 
 import { useLanguage } from '../hooks/useLanguage';
 
@@ -18,7 +18,18 @@ function Login() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { checkAuth } = useAuth();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const googleError = params.get('google_error');
+
+    if (googleError) {
+      setError(googleError);
+      window.history.replaceState({}, document.title, '/login');
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -56,6 +67,20 @@ function Login() {
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setGoogleLoading(true);
+
+    try {
+      const { authUrl } = await getGoogleLoginAuthUrl();
+      localStorage.setItem('google_auth_pending', 'true');
+      window.location.assign(authUrl);
+    } catch (err) {
+      setError(err.message || 'Failed to start Google sign-in.');
+      setGoogleLoading(false);
     }
   };
 
@@ -111,10 +136,24 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn-primary" disabled={loading || googleLoading}>
             {loading ? '...' : isLogin ? t('signIn') : t('signUp')}
           </button>
         </form>
+
+        <div className="auth-divider">
+          <span>{t('orContinueWith')}</span>
+        </div>
+
+        <button
+          type="button"
+          className="btn-google"
+          onClick={handleGoogleSignIn}
+          disabled={loading || googleLoading}
+        >
+          <span className="btn-google-icon">G</span>
+          {googleLoading ? t('loading') : t('continueWithGoogle')}
+        </button>
 
         <p className="auth-switch">
           {isLogin ? t('dontHaveAccount') : t('alreadyHaveAccount')}

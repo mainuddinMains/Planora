@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
-import { connectMicrosoftAccount, connectGoogleCalendar } from './api';
+import { connectMicrosoftAccount, connectGoogleCalendar, loginWithGoogle } from './api';
 import { useDarkMode } from './hooks/useDarkMode';
 import Login from './pages/Login';
 import GoogleCalendar from './pages/GoogleCalendar';
@@ -21,6 +21,23 @@ function OAuthCallback() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && localStorage.getItem('google_auth_pending') === 'true' && !processed) {
+      localStorage.removeItem('google_auth_pending');
+      loginWithGoogle(code, state)
+        .then(() => {
+          setProcessed(true);
+          window.location.replace('/');
+        })
+        .catch(err => {
+          console.error('Google sign-in error:', err);
+          setProcessed(true);
+          const message = encodeURIComponent(err.message || 'Failed to sign in with Google.');
+          window.location.replace(`/login?google_error=${message}`);
+        });
+      return;
+    }
 
     if (code && localStorage.getItem('microsoft_oauth_pending') === 'true' && !processed) {
       localStorage.removeItem('microsoft_oauth_pending');
@@ -270,6 +287,7 @@ function AppRoutes() {
       <FocusTimer isOpen={showFocusTimer} onClose={() => setShowFocusTimer(false)} />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace={true} /> : <Login />} />
+        <Route path="/google-callback" element={<div className="page">Loading...</div>} />
         <Route path="/email-sync" element={
           <PrivateRoute><EmailSync /></PrivateRoute>
         } />
