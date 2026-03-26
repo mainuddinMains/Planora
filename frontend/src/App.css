@@ -537,6 +537,10 @@ nav a:hover {
   gap: 1rem;
 }
 
+.task-list-controls{
+  margin-bottom: 1rem;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
