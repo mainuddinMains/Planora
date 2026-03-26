@@ -157,7 +157,7 @@ function TodayPlan() {
             <p>{t('addTasksFromDashboard')}</p>
           </div>
         ) : (
-          groupedTaskLists(recommendations, groupBy).map((taskList) =>
+          groupedTaskLists(recommendations, groupBy).map((taskList, index, list) =>
             (
               <div>
                 {sortedTaskList(taskList.tasks, sortBy, sortDescending).map((task, index) => {
@@ -213,6 +213,7 @@ function TodayPlan() {
                     </div>
                   );
                 })}
+                {index < list.length - 1 && (<hr style={{marginTop: "10px", marginBottom: "10px"}} />)}
               </div>
             )
           )

@@ -286,15 +286,36 @@ export const formatDueDate = (dateString) => {
 export const TaskListGroupMethod = Object.freeze({
   COMPLETED: {
     name: "completed",
-    method: (a) => a.is_completed,
+    getGroupKey: (a) => a.is_completed,
+    sort: (a, b) => a.key ? 1 : -1,
   },
   COURSE: {
     name: "course",
-    method: (a) => a.course_name || 'No Course',
+    getGroupKey: (a) => a.course_name || 'No Course',
+    sort: (a, b) => a.key - b.key,
   },
   PRIORITY: {
     name: "priority",
-    method: (a) => a.priority,
+    getGroupKey: (a) => a.priority,
+    sort: (a, b) => {
+      let aPriority;
+      switch (a.key) {
+        case 'low': aPriority = 1; break;
+        case 'medium': aPriority = 2; break;
+        case 'high': aPriority = 3; break;
+        default: aPriority = 0;
+      }
+
+      let bPriority;
+      switch (b.key) {
+        case 'low': bPriority = 1; break;
+        case 'medium': bPriority = 2; break;
+        case 'high': bPriority = 3; break;
+        default: bPriority = 0;
+      }
+
+      return aPriority - bPriority;
+    },
   },
 })
 
@@ -305,7 +326,7 @@ export function groupedTaskLists(list, method = TaskListGroupMethod.COMPLETED) {
 
   let taskListGroups = [];
   list.forEach(task => {
-    const groupKey = method.method(task);
+    const groupKey = method.getGroupKey(task);
     let group = taskListGroups.find(g => g.key === groupKey);
     if (!group) {
       group = { key: groupKey, tasks: [] };
@@ -313,6 +334,8 @@ export function groupedTaskLists(list, method = TaskListGroupMethod.COMPLETED) {
     }
     group.tasks.push(task);
   });
+
+  taskListGroups.sort(method.sort)
 
   return taskListGroups;
 }
