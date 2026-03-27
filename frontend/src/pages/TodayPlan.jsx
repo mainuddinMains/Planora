@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks';
-import { useLanguage } from '../hooks/useLanguage';
+import React, {useEffect, useState} from 'react'
+import {useAuth} from '../hooks'
+import {useLanguage} from '../hooks/useLanguage'
 import {
   formatDueDate,
   getTodayRecommendations,
-  updateTask,
+  groupedTaskLists,
+  TaskListGroupMethod,
   TaskListSortMethod,
-  sortedTaskList,
-  groupedTaskLists, TaskListGroupMethod
+  updateTask
 } from '../api'
+import {PriorityTaskList} from "../components/PriorityTaskList"
 
 function TodayPlan() {
   const { user } = useAuth();
@@ -159,61 +160,9 @@ function TodayPlan() {
         ) : (
           groupedTaskLists(recommendations, groupBy).map((taskList, index, list) =>
             (
-              <div>
-                {sortedTaskList(taskList.tasks, sortBy, sortDescending).map((task, index) => {
-                  const dueInfo = formatDueDate(task.due_date);
-
-                  return (
-                    <div
-                      key={task.id}
-                      className={`recommendation-card ${task.is_completed ? 'completed' : ''}`}
-                    >
-                      <div className="recommendation-rank">
-                        <span className="rank-number">{index + 1}</span>
-                      </div>
-
-                      <div className="recommendation-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={task.is_completed}
-                          onChange={() => handleComplete(task.id, !task.is_completed)}
-                        />
-                      </div>
-
-                      <div className="recommendation-content">
-                        <div className="recommendation-header">
-                          <h3 className="recommendation-title">{task.title}</h3>
-                          <span className={`task-priority ${getPriorityClass(task.priority)}`}>
-                          {task.priority}
-                        </span>
-                        </div>
-
-                        <div className="recommendation-meta">
-                          {task.course_name && (
-                            <span
-                              className="task-course"
-                              style={{backgroundColor: task.course_color || '#4a90a4'}}
-                            >
-                          {task.course_name}
-                        </span>
-                          )}
-                          <span className={`task-due ${dueInfo.urgent ? 'urgent' : ''}`}>
-                          {dueInfo.text}
-                        </span>
-                          {task.duration && (
-                            <span className="task-duration">{task.duration} min</span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="recommendation-score">
-                        <span className="score-value">{task.score?.toFixed(1)}</span>
-                        <span className="score-label">{getScoreLabel(task.score)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-                {index < list.length - 1 && (<hr style={{marginTop: "10px", marginBottom: "10px"}} />)}
+              <div className="recommendations-list" style={{"marginBottom": "20px"}}>
+                <PriorityTaskList taskList={taskList} method={sortBy} reverse={sortDescending} index={index} handleComplete={handleComplete} getPriorityClass={getPriorityClass} getScoreLabel={getScoreLabel}/>
+                {/*{index < list.length - 1 && (<hr style={{marginTop: "10px", marginBottom: "10px"}}/>)}*/}
               </div>
             )
           )
