@@ -314,7 +314,7 @@ export const TaskListGroupMethod = Object.freeze({
         default: bPriority = 0;
       }
 
-      return aPriority - bPriority;
+      return bPriority - aPriority;
     },
   },
 })
