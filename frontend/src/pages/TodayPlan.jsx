@@ -124,11 +124,11 @@ function TodayPlan() {
 
         <div className="task-list-controls">
           <label htmlFor="sort-select">{(t('sortBy') || 'Sort by') + ' '}</label>
-          <select id="sort-select" onChange={(e) => setSortBy(e.target.value)} defaultValue="priority">
-            <option value={TaskListSortMethod.PRIORITY.name}>{t(TaskListSortMethod.PRIORITY.name) || TaskListSortMethod.PRIORITY.name}</option>
-            <option value={TaskListSortMethod.DATE.name}>{t(TaskListSortMethod.DATE.name) || TaskListSortMethod.DATE.name}</option>
-            <option value={TaskListSortMethod.DURATION.name}>{t(TaskListSortMethod.DURATION.name) || TaskListSortMethod.DURATION.name}</option>
-            <option value={TaskListSortMethod.TITLE.name}>{t(TaskListSortMethod.TITLE.name) || TaskListSortMethod.TITLE.name}</option>
+          <select id="sort-select" onChange={(e) => setSortBy(e.target.value)} defaultValue={TaskListSortMethod.PRIORITY.name}>
+            <option value={TaskListSortMethod.PRIORITY.name}>{(t(TaskListSortMethod.PRIORITY.name) || TaskListSortMethod.PRIORITY.name).toLowerCase()}</option>
+            <option value={TaskListSortMethod.DATE.name}>{(t(TaskListSortMethod.DATE.name) || TaskListSortMethod.DATE.name).toLowerCase()}</option>
+            <option value={TaskListSortMethod.DURATION.name}>{(t(TaskListSortMethod.DURATION.name) || TaskListSortMethod.DURATION.name).toLowerCase()}</option>
+            <option value={TaskListSortMethod.TITLE.name}>{(t(TaskListSortMethod.TITLE.name) || TaskListSortMethod.TITLE.name).toLowerCase()}</option>
           </select>
           <button
           type="button"
@@ -143,11 +143,11 @@ function TodayPlan() {
         </div>
 
         <div className="task-list-controls">
-          <label htmlFor="group-select">{(t('groupBy' || 'Group by'))}</label>
-          <select id="group-select" onChange={(e) => setGroupBy(e.target.value)} defaultValue="completed">
-            <option value={'completed'}>{t('completionStatus') || 'Completion Status'}</option>
-            <option value={'course'}>{t('course') || 'Course'}</option>
-            <option value={'priority'}>{t('priority') || 'Priority'}</option>
+          <label htmlFor="group-select">{(t('groupBy') || 'Group by') + ' '}</label>
+          <select id="group-select" onChange={(e) => setGroupBy(e.target.value)} defaultValue={TaskListGroupMethod.COMPLETED.name}>
+            <option value={TaskListGroupMethod.COMPLETED.name}>{(t(TaskListGroupMethod.COMPLETED.name) || TaskListGroupMethod.COMPLETED.name).toLowerCase()}</option>
+            <option value={TaskListGroupMethod.PRIORITY.name}>{(t(TaskListGroupMethod.PRIORITY.name) || TaskListGroupMethod.PRIORITY.name).toLowerCase()}</option>
+            <option value={TaskListGroupMethod.COURSE.name}>{(t(TaskListGroupMethod.COURSE.name) || TaskListGroupMethod.COURSE.name).toLowerCase()}</option>
           </select>
         </div>
 

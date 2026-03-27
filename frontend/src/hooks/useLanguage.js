@@ -1115,7 +1115,7 @@ export function LanguageProvider({ children }) {
     document.documentElement.dir = rtlLanguages.includes(language) ? 'rtl' : 'ltr';
   }, [language]);
 
-  const t = (key) => translations[language]?.[key] || translations.en[key] || key;
+  const t = (key) => translations[language]?.[key] || translations.en[key] || null;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
