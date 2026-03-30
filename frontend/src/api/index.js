@@ -292,7 +292,7 @@ export const TaskListGroupMethod = Object.freeze({
   COURSE: {
     name: "course",
     getGroupKey: (a) => a.course_name || 'No Course',
-    sort: (a, b) => a.key - b.key,
+    sort: (a, b) => a.key.localeCompare(b.key),
   },
   PRIORITY: {
     name: "priority",
