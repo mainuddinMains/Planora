@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getTasks } from '../api';
 import AISettings from './AISettings';
+import { useLanguage } from '../hooks/useLanguage';
 import './AIAssistant.css';
 
 function AIAssistant({ isOpen, onClose }) {
+  const { t } = useLanguage();
   const [tasks, setTasksLocal] = useState([]);
   const [messages, setMessages] = useState([
     { type: 'ai', text: "Hi! I'm your AI study assistant. I can help you with:\n• Scheduling & time management\n• Task organization tips\n• Productivity advice\n• Answer questions about your tasks\n\nWhat would you like help with?" }
@@ -34,6 +36,7 @@ function AIAssistant({ isOpen, onClose }) {
 
   const aiOptions = [
     { id: 'local', name: 'Planora AI', icon: '🤖', desc: 'Built-in assistant' },
+    { id: 'openrouter', name: 'OpenRouter', icon: '🔀', desc: '100+ AI models' },
     { id: 'openai', name: 'ChatGPT', icon: '🤖', desc: 'OpenAI account' },
     { id: 'anthropic', name: 'Claude', icon: '🧠', desc: 'Anthropic account' },
     { id: 'google', name: 'Gemini', icon: '✨', desc: 'Google account' },
@@ -212,20 +215,68 @@ function AIAssistant({ isOpen, onClose }) {
     return "I'm here to help! Try asking me about:\n• Your schedule/deadlines\n• Productivity tips\n• Overdue tasks\n• What you have due today\n• General advice";
   };
 
+  const callOpenRouter = async (userMessage, history) => {
+    const apiKeys = JSON.parse(localStorage.getItem('aiApiKeys') || '{}');
+    const apiKey = apiKeys['openrouter'];
+    if (!apiKey) throw new Error('OpenRouter API key not set. Click ⚙️ to add your key from openrouter.ai');
+
+    const incomplete = tasks.filter(t => !t.is_completed);
+    const overdue = incomplete.filter(t => t.due_date && new Date(t.due_date) < new Date());
+    const systemPrompt = `You are a helpful AI study assistant inside Planora, a student task management app.
+The student currently has ${incomplete.length} incomplete task(s)${overdue.length > 0 ? `, ${overdue.length} of which are overdue` : ''}.
+${incomplete.length > 0 ? `Tasks: ${incomplete.slice(0, 10).map(t => `"${t.title}" (due: ${t.due_date ? new Date(t.due_date).toLocaleDateString() : 'no date'}, priority: ${t.priority})`).join(', ')}` : ''}
+Be concise, encouraging, and helpful with scheduling, productivity, and academic advice.`;
+
+    const chatHistory = history
+      .filter(m => m.text)
+      .map(m => ({ role: m.type === 'user' ? 'user' : 'assistant', content: m.text }));
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'X-Title': 'Planora Study Assistant',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...chatHistory,
+          { role: 'user', content: userMessage },
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'OpenRouter request failed');
+    return data.choices[0].message.content;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { type: 'user', text: userMessage }]);
+    const updatedMessages = [...messages, { type: 'user', text: userMessage }];
+    setMessages(updatedMessages);
     setLoading(true);
 
-    setTimeout(() => {
-      const response = processMessage(userMessage);
-      setMessages(prev => [...prev, { type: 'ai', text: response }]);
+    try {
+      if (selectedAI === 'openrouter') {
+        const response = await callOpenRouter(userMessage, updatedMessages);
+        setMessages(prev => [...prev, { type: 'ai', text: response }]);
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const response = processMessage(userMessage);
+        setMessages(prev => [...prev, { type: 'ai', text: response }]);
+      }
+    } catch (err) {
+      setMessages(prev => [...prev, { type: 'ai', text: `⚠️ Error: ${err.message}` }]);
+    } finally {
       setLoading(false);
-    }, 300);
+    }
   };
 
   if (!isOpen) return null;

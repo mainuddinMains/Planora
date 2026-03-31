@@ -2,12 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const { ensureSchema } = require('./db/ensureSchema');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const courseRoutes = require('./routes/courses');
 const recommendationRoutes = require('./routes/recommendations');
 const notificationRoutes = require('./routes/notifications');
 const { startNotificationJobs } = require('./jobs/notificationJob');
+
+const googleCalendarRoutes = require('./routes/googleCalendar');
 
 let emailSourceRoutes = null;
 let emailSyncRoutes = null;
@@ -27,7 +30,7 @@ try {
 
 const app = express();
 
-const devOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const devOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'];
 const envOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
@@ -38,7 +41,7 @@ const allowedOrigins =
     ? [process.env.FRONTEND_URL].filter(Boolean)
     : [...new Set([...devOrigins, ...envOrigins])];
 
-const devIpOriginRegex = /^http:\/\/(\d{1,3}\.){3}\d{1,3}:3000$/;
+const devIpOriginRegex = /^http:\/\/(\d{1,3}\.){3}\d{1,3}:(3000|5173)$/;
 
 app.use(
   cors({
@@ -72,6 +75,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/google-calendar', googleCalendarRoutes);
 
 if (emailSourceRoutes && emailSyncRoutes) {
   app.use('/api/email_sources', emailSourceRoutes);
@@ -88,13 +92,23 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 
-  if (process.env.NODE_ENV !== 'test') {
-    startNotificationJobs();
-    if (startEmailSyncJobs) {
-      startEmailSyncJobs();
+async function startServer() {
+  await ensureSchema();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+
+    if (process.env.NODE_ENV !== 'test') {
+      startNotificationJobs();
+      if (startEmailSyncJobs) {
+        startEmailSyncJobs();
+      }
     }
-  }
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });
