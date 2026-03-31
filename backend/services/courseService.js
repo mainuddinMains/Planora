@@ -1,5 +1,30 @@
 const db = require('../db');
 
+
+async function initializeCourseTable() {
+  const query = `
+    CREATE TABLE IF NOT EXISTS courses (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      code TEXT,
+      color TEXT DEFAULT '#4a90a4',
+      instructor TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  try {
+    await db.query(query);
+    console.log('Courses table checked/created successfully.');
+  } catch (err) {
+    console.error('Error initializing courses table:', err);
+  }
+}
+
+// Run initialization immediately when the service is loaded
+initializeCourseTable();
+
 async function createCourse(userId, courseData) {
   const { name, code, color, instructor } = courseData;
   
@@ -46,6 +71,9 @@ async function updateCourse(courseId, userId, updates) {
   if (setClause.length === 0) {
     return getCourseById(courseId, userId);
   }
+
+  // Adding an automatic update to updated_at timestamp
+  setClause.push('updated_at = CURRENT_TIMESTAMP');
 
   const query = `
     UPDATE courses
