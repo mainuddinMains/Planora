@@ -20,6 +20,12 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const { checkAuth } = useAuth();
 
+  const handleDevBypass = async () => {
+    localStorage.setItem('planora_bypass_auth', 'true');
+    await checkAuth();
+    navigate('/');
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
@@ -126,6 +132,10 @@ function Login() {
             {isLogin ? t('signUp') : t('signIn')}
           </button>
         </p>
+
+        <button type="button" className="btn-secondary" onClick={handleDevBypass}>
+          Continue in local dev mode
+        </button>
       </div>
     </div>
   );

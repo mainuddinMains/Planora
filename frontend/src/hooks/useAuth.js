@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { getCurrentUser, logout as apiLogout } from '../api';
 
 const AuthContext = createContext(null);
+const DEV_BYPASS_KEY = 'planora_bypass_auth';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -13,6 +14,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function checkAuth() {
+    if (localStorage.getItem(DEV_BYPASS_KEY) === 'true') {
+      setUser({
+        id: 'dev-local-user',
+        name: 'Local Dev User',
+        email: 'dev@local.planora',
+      });
+      setShowWelcome(true);
+      setTimeout(() => setShowWelcome(false), 4000);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getCurrentUser();
       setUser(data.user);
@@ -29,6 +42,7 @@ export function AuthProvider({ children }) {
     try {
       await apiLogout();
     } finally {
+      localStorage.removeItem(DEV_BYPASS_KEY);
       setUser(null);
     }
   }
