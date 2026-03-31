@@ -299,4 +299,115 @@ export async function deleteGoogleCalendarEvent(eventId) {
 
 export async function exportTaskToGoogleCalendar(taskId) {
   return fetchApi(`/google-calendar/export-task/${taskId}`, { method: 'POST' });
+export const TaskListSortMethod = Object.freeze({
+  DATE: {
+    name: "date",
+    method: (a, b) => new Date(a.due_date) - new Date(b.due_date),
+  },
+  TITLE: {
+    name: "title",
+    method: (a, b) => a.title.localeCompare(b.title)
+  },
+  PRIORITY: {
+    name: "priority",
+    method: (a, b) => a.score - b.score
+  },
+  DURATION: {
+    name: "duration",
+    method: (a, b) => a.duration - b.duration
+  }
+})
+
+export function sortedTaskList(list, method = TaskListSortMethod.PRIORITY, reverse= false) {
+  if (typeof method === 'string') {
+    method = Object.values(TaskListSortMethod).find(m => m.name === method);
+  }
+
+  let sortedList = list.toSorted(method.method);
+  if (reverse) {
+    sortedList.reverse();
+  }
+
+  return sortedList;
+}
+
+export const formatDueDate = (dateString) => {
+  if (!dateString) return { text: 'No due date', urgent: false };
+
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = date - now;
+  const diffHours = diffMs / (1000 * 60 * 60);
+
+  if (diffMs < 0) {
+    return { text: 'Overdue', urgent: true };
+  }
+  if (diffHours <= 6) {
+    return { text: 'Due soon', urgent: true };
+  }
+  if (diffHours <= 24) {
+    return { text: 'Due today', urgent: false };
+  }
+  return {
+    text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    urgent: false
+  };
+};
+
+export const TaskListGroupMethod = Object.freeze({
+  COMPLETED: {
+    name: "completed",
+    getGroupKey: (a) => a.is_completed,
+    sort: (a, b) => a.key ? 1 : -1,
+  },
+  COURSE: {
+    name: "course",
+    getGroupKey: (a) => a.course_name || 'No Course',
+    sort: (a, b) => a.key.localeCompare(b.key),
+  },
+  PRIORITY: {
+    name: "priority",
+    getGroupKey: (a) => a.priority,
+    sort: (a, b) => {
+      let aPriority;
+      switch (a.key) {
+        case 'low': aPriority = 1; break;
+        case 'medium': aPriority = 2; break;
+        case 'high': aPriority = 3; break;
+        default: aPriority = 0;
+      }
+
+      let bPriority;
+      switch (b.key) {
+        case 'low': bPriority = 1; break;
+        case 'medium': bPriority = 2; break;
+        case 'high': bPriority = 3; break;
+        default: bPriority = 0;
+      }
+
+      return bPriority - aPriority;
+    },
+  },
+})
+
+export function groupedTaskLists(list, method = TaskListGroupMethod.COMPLETED) {
+  if (typeof method === 'string') {
+    method = Object.values(TaskListGroupMethod).find(m => m.name === method);
+  }
+
+  let taskListGroups = [];
+  list.forEach(task => {
+    const groupKey = method.getGroupKey(task);
+    let group = taskListGroups.find(g => g.key === groupKey);
+    if (!group) {
+      group = { key: groupKey, tasks: [] };
+      taskListGroups.push(group);
+    }
+    group.tasks.push(task);
+  });
+
+  taskListGroups.sort(method.sort)
+
+  return taskListGroups;
+
 }

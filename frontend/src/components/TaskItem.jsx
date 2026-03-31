@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 
-function TaskItem({ task, onToggle, onEdit, onDelete }) {
+function TaskItem({ task, onToggle, onEdit, onDelete, density = 'comfortable' }) {
   const { t } = useLanguage();
   
   const formatDate = (dateString) => {
@@ -31,7 +31,11 @@ function TaskItem({ task, onToggle, onEdit, onDelete }) {
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && !task.is_completed;
 
   return (
-    <div className={`task-item ${task.is_completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`}>
+    <div
+      className={`task-item ${task.is_completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''} ${
+        density === 'compact' ? 'task-item--compact' : ''
+      }`}
+    >
       <div className="task-checkbox">
         <input
           type="checkbox"
@@ -48,7 +52,7 @@ function TaskItem({ task, onToggle, onEdit, onDelete }) {
           </span>
         </div>
 
-        {task.description && (
+        {task.description && density !== 'compact' && (
           <p className="task-description">{task.description}</p>
         )}
 
