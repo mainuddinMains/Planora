@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { en, es } from '../translations';
 
-const translations = { en, es };
+/*const translations = { en, es };*/ // TODO: Add this back in if we end up separating the modules
 const translations = {
   en: {
     dashboard: 'Dashboard', tasks: 'Tasks', weekly: 'Weekly', monthly: 'Monthly', today: 'Today',
@@ -110,7 +110,7 @@ const translations = {
     densityComfortable: 'Comfortable',
     densityCompact: 'Compact',
     tasksPageSubtitle: 'Search, filter, and manage your full task library.',
-    taskLibrary: 'Task library',
+    taskLibrary: 'Task library', groupBy: 'Group by'
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', monthly: 'Mensual', today: 'Hoy',
@@ -1249,7 +1249,6 @@ export function LanguageProvider({ children }) {
     const langTranslations = translations[language] || translations.en;
     return langTranslations[key] || translations.en[key] || key;
   };
-  const t = (key) => translations[language]?.[key] || translations.en[key] || null;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, languages, dir }}>
