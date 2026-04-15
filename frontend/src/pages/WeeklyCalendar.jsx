@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useWeeklyTasks } from '../hooks';
 import { useLanguage } from '../hooks/useLanguage';
 import { updateTask } from '../api';
+import { MiniTaskList } from "../components";
 
 function WeeklyCalendar() {
   const { t } = useLanguage();
@@ -152,6 +153,8 @@ function WeeklyCalendar() {
           </button>
         </div>
       </div>
+
+      <MiniTaskList tasks={Object.values(tasksByDay).flat()} />
 
       <div className="week-info">
         <h2>{formatWeekRange()}</h2>

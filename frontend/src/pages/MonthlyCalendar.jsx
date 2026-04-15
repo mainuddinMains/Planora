@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { getTasks, updateTask } from '../api';
+import { MiniTaskList } from "../components";
 
 function MonthlyCalendar() {
   const { t } = useLanguage();
@@ -157,6 +158,8 @@ function MonthlyCalendar() {
           </button>
         </div>
       </div>
+
+      <MiniTaskList tasks={tasks}/>
 
       {message && <div className="success-message">{message}</div>}
 
