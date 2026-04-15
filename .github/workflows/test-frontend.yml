@@ -7,20 +7,6 @@ on:
 jobs:
     test-frontend:
         runs-on: ubuntu-latest
-        services:
-            postgres:
-                image: postgres:15-alpine
-                ports:
-                    - 5432:5432
-                env:
-                    POSTGRES_USER: planora
-                    POSTGRES_PASSWORD: planora_password
-                    POSTGRES_DB: planora
-                options: >-
-                    --health-cmd="pg_isready -U planora"
-                    --health-interval=5s
-                    --health-timeout=5s
-                    --health-retries=5
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
@@ -33,5 +19,5 @@ jobs:
             - name: Install frontend dependencies and run tests
               run: |
                   cd frontend
-                  npm install
+                  npm ci
                   npm test -- --watchAll=false --passWithNoTests

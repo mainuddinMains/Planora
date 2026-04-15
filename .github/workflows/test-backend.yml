@@ -33,5 +33,5 @@ jobs:
       - name: Install backend dependencies and run tests
         run: |
           cd backend
-          npm install
+          npm ci
           npm test -- --watchAll=false --passWithNoTests
