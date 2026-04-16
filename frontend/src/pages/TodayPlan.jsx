@@ -87,7 +87,7 @@ function TodayPlan() {
       <div className="plan-header">
         <div>
           <h1>{t('todaysPlan')}</h1>
-          <p>{t('welcome')}, {user?.name || 'Student'}, here's your prioritized task list</p>
+          <p>{user?.name || 'Student'}, here's your prioritized task list</p>
         </div>
         <button onClick={fetchRecommendations} className="btn-secondary">
           {t('refresh') || 'Refresh'}
@@ -141,10 +141,7 @@ function TodayPlan() {
           >
             {sortDescending ? "↓" : "↑"}
           </button>
-        </div>
-
-        <div className="task-list-controls">
-          <label htmlFor="group-select">{(t('groupBy') || 'Group by') + ' '}</label>
+          <label htmlFor="group-select" style={{"marginLeft": "1.5rem"}}>{(t('groupBy') || 'Group by') + ' '}</label>
           <select id="group-select" onChange={(e) => setGroupBy(e.target.value)} defaultValue={TaskListGroupMethod.COMPLETED.name}>
             <option value={TaskListGroupMethod.COMPLETED.name}>{(t(TaskListGroupMethod.COMPLETED.name) || TaskListGroupMethod.COMPLETED.name).toLowerCase()}</option>
             <option value={TaskListGroupMethod.PRIORITY.name}>{(t(TaskListGroupMethod.PRIORITY.name) || TaskListGroupMethod.PRIORITY.name).toLowerCase()}</option>
