@@ -1231,6 +1231,30 @@ nav a:hover {
   max-width: 1400px;
 }
 
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.calendar-main-column {
+  min-width: 0;
+}
+
+.calendar-side-column {
+  min-width: 0;
+}
+
+.calendar-side-column .focus-panel {
+  position: sticky;
+  top: 1rem;
+}
+
+.calendar-side-column .focus-panel-inner-list {
+  max-height: 520px;
+}
+
 .calendar-header {
   display: flex;
   justify-content: space-between;
@@ -1411,6 +1435,14 @@ nav a:hover {
 }
 
 @media (max-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-side-column .focus-panel {
+    position: static;
+  }
+
   .calendar-grid {
     grid-template-columns: repeat(4, 1fr);
   }

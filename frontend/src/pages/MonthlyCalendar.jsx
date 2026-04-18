@@ -159,60 +159,81 @@ function MonthlyCalendar() {
         </div>
       </div>
 
-      <MiniTaskList tasks={tasks}/>
+      <div className="calendar-layout">
+        <div className="calendar-main-column">
+          {message && <div className="success-message">{message}</div>}
 
-      {message && <div className="success-message">{message}</div>}
+          <div className="month-info">
+            <h2>{formatMonthYear()}</h2>
+          </div>
 
-      <div className="month-info">
-        <h2>{formatMonthYear()}</h2>
-      </div>
+          <div className="month-grid">
+            {weekDays.map(day => (
+              <div key={day} className="month-weekday">{day}</div>
+            ))}
 
-      <div className="month-grid">
-        {weekDays.map(day => (
-          <div key={day} className="month-weekday">{day}</div>
-        ))}
-        
-        {getMonthDays().map((dayInfo, index) => {
-          const dayTasks = getTasksForDay(dayInfo.date);
-          const isCurrentDay = isToday(dayInfo.date);
-          
-          return (
-            <div
-              key={index}
-              className={`month-day ${!dayInfo.isCurrentMonth ? 'other-month' : ''} ${isCurrentDay ? 'today' : ''} ${dragOverDay?.toDateString() === dayInfo.date.toDateString() ? 'drag-over' : ''}`}
-              onDragOver={(e) => handleDragOver(e, dayInfo.date)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, dayInfo.date)}
-            >
-              <div className="day-header">
-                <span className="day-number">{dayInfo.date.getDate()}</span>
-                {dayTasks.length > 0 && (
-                  <span className="task-count">{dayTasks.length}</span>
-                )}
-              </div>
-              
-              <div className="day-tasks">
-                {dayTasks.slice(0, 3).map(task => (
-                  <div
-                    key={task.id}
-                    className={`month-task ${task.is_completed ? 'completed' : ''} ${draggedTask?.task.id === task.id ? 'dragging' : ''}`}
-                    style={{ borderLeftColor: task.course_color || '#4a90a4' }}
-                    draggable={!task.is_completed}
-                    onDragStart={(e) => handleDragStart(e, task, dayInfo.date)}
-                    onDragEnd={handleDragEnd}
-                    title={task.title}
-                  >
-                    <span className="task-dot">•</span>
-                    <span className="task-name">{task.title}</span>
+            {getMonthDays().map((dayInfo, index) => {
+              const dayTasks = getTasksForDay(dayInfo.date);
+              const isCurrentDay = isToday(dayInfo.date);
+
+              return (
+                <div
+                  key={index}
+                  className={`month-day ${!dayInfo.isCurrentMonth ? 'other-month' : ''} ${isCurrentDay ? 'today' : ''} ${dragOverDay?.toDateString() === dayInfo.date.toDateString() ? 'drag-over' : ''}`}
+                  onDragOver={(e) => handleDragOver(e, dayInfo.date)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, dayInfo.date)}
+                >
+                  <div className="day-header">
+                    <span className="day-number">{dayInfo.date.getDate()}</span>
+                    {dayTasks.length > 0 && (
+                      <span className="task-count">{dayTasks.length}</span>
+                    )}
                   </div>
-                ))}
-                {dayTasks.length > 3 && (
-                  <div className="more-tasks">+{dayTasks.length - 3} more</div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+
+                  <div className="day-tasks">
+                    {dayTasks.slice(0, 3).map(task => (
+                      <div
+                        key={task.id}
+                        className={`month-task ${task.is_completed ? 'completed' : ''} ${draggedTask?.task.id === task.id ? 'dragging' : ''}`}
+                        style={{ borderLeftColor: task.course_color || '#4a90a4' }}
+                        draggable={!task.is_completed}
+                        onDragStart={(e) => handleDragStart(e, task, dayInfo.date)}
+                        onDragEnd={handleDragEnd}
+                        title={task.title}
+                      >
+                        <span className="task-dot">•</span>
+                        <span className="task-name">{task.title}</span>
+                      </div>
+                    ))}
+                    {dayTasks.length > 3 && (
+                      <div className="more-tasks">+{dayTasks.length - 3} more</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <aside className="calendar-side-column">
+          <section className="focus-panel" aria-labelledby="monthly-side-tasks-title">
+            <h2 id="monthly-side-tasks-title" className="focus-panel-title">
+              Top Tasks
+            </h2>
+            <p className="focus-panel-hint">Drag these tasks over to a day to set a due date.</p>
+            <MiniTaskList
+              tasks={tasks}
+              limit={5}
+              prioritize
+              readOnly
+              density="compact"
+              emptyMessageKey="noTasks"
+              className="focus-panel-inner-list"
+              emptyClassName="focus-panel-empty"
+            />
+          </section>
+        </aside>
       </div>
     </div>
   );
