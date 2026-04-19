@@ -285,7 +285,6 @@ function WeeklyCalendar() {
             </div>
             <MiniTaskList
               tasks={tasks.filter(task => !task.due_date)}
-              limit={5}
               prioritize
               readOnly
               density="compact"

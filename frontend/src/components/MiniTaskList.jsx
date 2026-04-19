@@ -5,7 +5,7 @@ import { useLanguage } from '../hooks/useLanguage';
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 const NOOP = () => {};
 
-function rankFocusTasks(tasks, limit = 5) {
+function rankFocusTasks(tasks, limit) {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const todayEnd = new Date(todayStart);
@@ -41,7 +41,7 @@ function MiniTaskList({
   onToggle,
   onEdit,
   onDelete,
-  limit = 5,
+  limit,
   prioritize = true,
   readOnly = false,
   density = 'compact',

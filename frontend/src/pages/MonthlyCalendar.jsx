@@ -79,14 +79,6 @@ function MonthlyCalendar() {
     return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
-  const getPriorityClass = (priority) => {
-    switch (priority) {
-      case 'high': return 'priority-high';
-      case 'low': return 'priority-low';
-      default: return 'priority-medium';
-    }
-  };
-
   const handleDragStart = (e, task, date) => {
     const fallbackDate = date instanceof Date ? date : null;
     setDraggedTask({
@@ -276,7 +268,6 @@ function MonthlyCalendar() {
             </div>
             <MiniTaskList
               tasks={tasks.filter(task => !task.due_date)}
-              limit={5}
               prioritize
               readOnly
               density="compact"
