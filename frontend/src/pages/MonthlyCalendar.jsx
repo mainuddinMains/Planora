@@ -10,6 +10,7 @@ function MonthlyCalendar() {
   const [loading, setLoading] = useState(true);
   const [draggedTask, setDraggedTask] = useState(null);
   const [dragOverDay, setDragOverDay] = useState(null);
+  const [isUnscheduleDragOver, setIsUnscheduleDragOver] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -87,7 +88,11 @@ function MonthlyCalendar() {
   };
 
   const handleDragStart = (e, task, date) => {
-    setDraggedTask({ task, originalDate: date });
+    const fallbackDate = date instanceof Date ? date : null;
+    setDraggedTask({
+      task,
+      originalDueDate: task.due_date || (fallbackDate ? fallbackDate.toISOString() : null),
+    });
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -103,14 +108,19 @@ function MonthlyCalendar() {
   const handleDrop = async (e, targetDate) => {
     e.preventDefault();
     setDragOverDay(null);
+    setIsUnscheduleDragOver(false);
     
     if (!draggedTask) return;
     
-    const originalDate = new Date(draggedTask.originalDate);
+    const originalDate = draggedTask.originalDueDate
+      ? new Date(draggedTask.originalDueDate)
+      : null;
     const newDate = new Date(targetDate);
-    newDate.setHours(originalDate.getHours(), originalDate.getMinutes(), 0, 0);
+    const hours = originalDate ? originalDate.getHours() : 9;
+    const minutes = originalDate ? originalDate.getMinutes() : 0;
+    newDate.setHours(hours, minutes, 0, 0);
     
-    if (newDate.toDateString() === originalDate.toDateString()) {
+    if (originalDate && newDate.toDateString() === originalDate.toDateString()) {
       setDraggedTask(null);
       return;
     }
@@ -127,9 +137,43 @@ function MonthlyCalendar() {
     setDraggedTask(null);
   };
 
+  const handleUnscheduleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setIsUnscheduleDragOver(true);
+  };
+
+  const handleUnscheduleDragLeave = () => {
+    setIsUnscheduleDragOver(false);
+  };
+
+  const handleUnscheduleDrop = async (e) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    setIsUnscheduleDragOver(false);
+
+    if (!draggedTask) return;
+    if (!draggedTask.task?.due_date) {
+      setDraggedTask(null);
+      return;
+    }
+
+    try {
+      await updateTask(draggedTask.task.id, { due_date: null });
+      setMessage('Task unscheduled');
+      setTimeout(() => setMessage(''), 3000);
+      fetchTasks();
+    } catch (err) {
+      console.error('Failed to unschedule task:', err);
+    }
+
+    setDraggedTask(null);
+  };
+
   const handleDragEnd = () => {
     setDraggedTask(null);
     setDragOverDay(null);
+    setIsUnscheduleDragOver(false);
   };
 
   const isToday = (date) => {
@@ -219,11 +263,19 @@ function MonthlyCalendar() {
         <aside className="calendar-side-column">
           <section className="focus-panel" aria-labelledby="monthly-side-tasks-title">
             <h2 id="monthly-side-tasks-title" className="focus-panel-title">
-              Top Tasks
+              Unscheduled Tasks
             </h2>
             <p className="focus-panel-hint">Drag these tasks over to a day to set a due date.</p>
+            <div
+              className={`unschedule-drop-zone ${isUnscheduleDragOver ? 'drag-over' : ''}`}
+              onDragOver={handleUnscheduleDragOver}
+              onDragLeave={handleUnscheduleDragLeave}
+              onDrop={handleUnscheduleDrop}
+            >
+              Drag here to remove a due date
+            </div>
             <MiniTaskList
-              tasks={tasks}
+              tasks={tasks.filter(task => !task.due_date)}
               limit={5}
               prioritize
               readOnly
@@ -231,6 +283,9 @@ function MonthlyCalendar() {
               emptyMessageKey="noTasks"
               className="focus-panel-inner-list"
               emptyClassName="focus-panel-empty"
+              draggable
+              onTaskDragStart={handleDragStart}
+              onTaskDragEnd={handleDragEnd}
             />
           </section>
         </aside>

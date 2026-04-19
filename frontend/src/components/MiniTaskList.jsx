@@ -48,6 +48,9 @@ function MiniTaskList({
   emptyMessageKey = 'focusEmpty',
   className = '',
   emptyClassName = '',
+  draggable = false,
+  onTaskDragStart,
+  onTaskDragEnd,
 }) {
   const { t } = useLanguage();
 
@@ -74,6 +77,9 @@ function MiniTaskList({
             onDelete={onDelete || NOOP}
             density={density}
             readOnly={readOnly}
+            draggable={draggable}
+            onDragStart={onTaskDragStart}
+            onDragEnd={onTaskDragEnd}
           />
         ))
       )}

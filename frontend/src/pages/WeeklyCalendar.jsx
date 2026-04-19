@@ -7,6 +7,7 @@ import { MiniTaskList } from "../components";
 function WeeklyCalendar() {
   const { t } = useLanguage();
   const {
+    tasks,
     tasksByDay,
     weekDays,
     loading,
@@ -14,16 +15,16 @@ function WeeklyCalendar() {
     goToPreviousWeek,
     goToNextWeek,
     goToCurrentWeek,
-    currentWeekStart,
     refresh
   } = useWeeklyTasks();
   
   const [draggedTask, setDraggedTask] = useState(null);
   const [dragOverDay, setDragOverDay] = useState(null);
+  const [isUnscheduleDragOver, setIsUnscheduleDragOver] = useState(false);
   const [message, setMessage] = useState('');
 
-  const handleDragStart = (e, task, day) => {
-    setDraggedTask({ task, originalDay: day });
+  const handleDragStart = (e, task) => {
+    setDraggedTask({ task, originalDueDate: task.due_date || null });
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', JSON.stringify({ taskId: task.id }));
   };
@@ -41,17 +42,20 @@ function WeeklyCalendar() {
   const handleDrop = async (e, targetDay) => {
     e.preventDefault();
     setDragOverDay(null);
+    setIsUnscheduleDragOver(false);
     
     if (!draggedTask || !targetDay) return;
     
-    const originalDate = new Date(draggedTask.originalDay);
+    const originalDate = draggedTask.originalDueDate
+      ? new Date(draggedTask.originalDueDate)
+      : null;
     const targetDate = new Date(targetDay);
-    
-    const hours = originalDate.getHours();
-    const minutes = originalDate.getMinutes();
+
+    const hours = originalDate ? originalDate.getHours() : 9;
+    const minutes = originalDate ? originalDate.getMinutes() : 0;
     targetDate.setHours(hours, minutes, 0, 0);
     
-    if (targetDate.toDateString() === originalDate.toDateString()) {
+    if (originalDate && targetDate.toDateString() === originalDate.toDateString()) {
       setDraggedTask(null);
       return;
     }
@@ -70,9 +74,43 @@ function WeeklyCalendar() {
     setDraggedTask(null);
   };
 
+  const handleUnscheduleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setIsUnscheduleDragOver(true);
+  };
+
+  const handleUnscheduleDragLeave = () => {
+    setIsUnscheduleDragOver(false);
+  };
+
+  const handleUnscheduleDrop = async (e) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    setIsUnscheduleDragOver(false);
+
+    if (!draggedTask) return;
+    if (!draggedTask.task?.due_date) {
+      setDraggedTask(null);
+      return;
+    }
+
+    try {
+      await updateTask(draggedTask.task.id, { due_date: null });
+      setMessage('Task unscheduled');
+      setTimeout(() => setMessage(''), 3000);
+      refresh();
+    } catch (err) {
+      console.error('Failed to unschedule task:', err);
+    }
+
+    setDraggedTask(null);
+  };
+
   const handleDragEnd = () => {
     setDraggedTask(null);
     setDragOverDay(null);
+    setIsUnscheduleDragOver(false);
   };
 
   const formatDayHeader = (date) => {
@@ -205,7 +243,7 @@ function WeeklyCalendar() {
                           className={`calendar-task ${task.is_completed ? 'completed' : ''} ${draggedTask?.task.id === task.id ? 'dragging' : ''}`}
                           style={{ borderLeftColor: task.course_color || '#4a90a4' }}
                           draggable={!task.is_completed}
-                          onDragStart={(e) => handleDragStart(e, task, day)}
+                          onDragStart={(e) => handleDragStart(e, task)}
                           onDragEnd={handleDragEnd}
                         >
                           <div className="task-time">{formatTime(task.due_date)}</div>
@@ -234,11 +272,19 @@ function WeeklyCalendar() {
         <aside className="calendar-side-column">
           <section className="focus-panel" aria-labelledby="weekly-side-tasks-title">
             <h2 id="weekly-side-tasks-title" className="focus-panel-title">
-              Top Tasks
+              Unscheduled Tasks
             </h2>
             <p className="focus-panel-hint">Drag these tasks over to a day to set a due date.</p>
+            <div
+              className={`unschedule-drop-zone ${isUnscheduleDragOver ? 'drag-over' : ''}`}
+              onDragOver={handleUnscheduleDragOver}
+              onDragLeave={handleUnscheduleDragLeave}
+              onDrop={handleUnscheduleDrop}
+            >
+              Drag here to remove a due date
+            </div>
             <MiniTaskList
-              tasks={Object.values(tasksByDay).flat()}
+              tasks={tasks.filter(task => !task.due_date)}
               limit={5}
               prioritize
               readOnly
@@ -246,6 +292,9 @@ function WeeklyCalendar() {
               emptyMessageKey="noTasks"
               className="focus-panel-inner-list"
               emptyClassName="focus-panel-empty"
+              draggable
+              onTaskDragStart={handleDragStart}
+              onTaskDragEnd={handleDragEnd}
             />
           </section>
         </aside>

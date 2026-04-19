@@ -877,6 +877,32 @@ nav a:hover {
   background: #fafafa;
 }
 
+.focus-panel-inner-list .task-item[draggable="true"] {
+  cursor: grab;
+}
+
+.focus-panel-inner-list .task-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.unschedule-drop-zone {
+  border: 2px dashed #d1d5db;
+  background: #f9fafb;
+  color: #6b7280;
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.unschedule-drop-zone.drag-over {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 .tasks-section-heading {
   display: flex;
   flex-wrap: wrap;
@@ -2302,6 +2328,18 @@ nav a:hover {
 
 [data-theme="dark"] .task-item.overdue {
   background: rgba(220, 38, 38, 0.1);
+}
+
+[data-theme="dark"] .unschedule-drop-zone {
+  background: var(--bg-secondary);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .unschedule-drop-zone.drag-over {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: #f87171;
+  color: #fca5a5;
 }
 
 [data-theme="dark"] .task-title {

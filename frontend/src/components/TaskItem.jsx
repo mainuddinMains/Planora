@@ -8,6 +8,9 @@ function TaskItem({
   onDelete = () => {},
   density = 'comfortable',
   readOnly = false,
+  draggable = false,
+  onDragStart,
+  onDragEnd,
 }) {
   const { t } = useLanguage();
   
@@ -42,6 +45,9 @@ function TaskItem({
       className={`task-item ${task.is_completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''} ${
         density === 'compact' ? 'task-item--compact' : ''
       }`}
+      draggable={draggable && !task.is_completed}
+      onDragStart={draggable ? (e) => onDragStart?.(e, task) : undefined}
+      onDragEnd={draggable ? onDragEnd : undefined}
     >
       {!readOnly && (
         <div className="task-checkbox">
