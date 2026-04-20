@@ -299,6 +299,8 @@ export async function deleteGoogleCalendarEvent(eventId) {
 
 export async function exportTaskToGoogleCalendar(taskId) {
   return fetchApi(`/google-calendar/export-task/${taskId}`, { method: 'POST' });
+}
+
 export const TaskListSortMethod = Object.freeze({
   DATE: {
     name: "date",
