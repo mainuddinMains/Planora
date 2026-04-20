@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+
+/*const translations = { en, es };*/ // TODO: Add this back in if we end up separating the modules
+
 const translations = {
   en: {
     dashboard: 'Dashboard', tasks: 'Tasks', weekly: 'Weekly', monthly: 'Monthly', today: 'Today',
@@ -108,7 +111,7 @@ const translations = {
     densityComfortable: 'Comfortable',
     densityCompact: 'Compact',
     tasksPageSubtitle: 'Search, filter, and manage your full task library.',
-    taskLibrary: 'Task library',
+    taskLibrary: 'Task library', groupBy: 'Group by'
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', monthly: 'Mensual', today: 'Hoy',
