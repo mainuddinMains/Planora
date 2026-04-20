@@ -142,13 +142,13 @@ function WeeklyCalendar() {
         <h1>{t('weeklyOverview')}</h1>
         <div className="week-navigation">
           <button onClick={goToPreviousWeek} className="btn-secondary">
-            {t('previousWeek')}
+            ◀
           </button>
           <button onClick={goToCurrentWeek} className="btn-secondary">
-            {t('thisWeek')}
+            {t('today') || 'Today'}
           </button>
           <button onClick={goToNextWeek} className="btn-secondary">
-            {t('nextWeek')}
+            ▶
           </button>
         </div>
       </div>
