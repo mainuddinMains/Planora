@@ -733,6 +733,59 @@ nav a:hover {
   align-items: center;
 }
 
+.outlook-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: opacity 0.15s;
+}
+
+.outlook-badge:hover {
+  opacity: 0.8;
+}
+
+.outlook-badge--connected {
+  background: #e6f4ea;
+  color: #1a7f37;
+  border-color: #a3d9b1;
+}
+
+.outlook-badge--disconnected {
+  background: #f3f4f6;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.outlook-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.outlook-badge-dot--on {
+  background: #22c55e;
+}
+
+[data-theme="dark"] .outlook-badge--connected {
+  background: #14532d;
+  color: #86efac;
+  border-color: #166534;
+}
+
+[data-theme="dark"] .outlook-badge--disconnected {
+  background: #374151;
+  color: #9ca3af;
+  border-color: #4b5563;
+}
+
 .dashboard-quick-link {
   text-decoration: none;
   display: inline-flex;
