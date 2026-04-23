@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, us
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
-import { connectMicrosoftAccount, connectGoogleCalendar, loginWithGoogle } from './api';
+import { connectMicrosoftAccount, connectGoogleCalendar, loginWithGoogle, getMicrosoftStatus } from './api';
 import { useDarkMode } from './hooks/useDarkMode';
 import Login from './pages/Login';
 import GoogleCalendar from './pages/GoogleCalendar';
@@ -96,6 +96,7 @@ function NavBar({ onOpenFocusTimer }) {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [outlookConnected, setOutlookConnected] = useState(null);
   const profileRef = useRef(null);
   const languageRef = useRef(null);
 
@@ -116,6 +117,13 @@ function NavBar({ onOpenFocusTimer }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    getMicrosoftStatus()
+      .then(data => setOutlookConnected(data?.connected ?? false))
+      .catch(() => setOutlookConnected(false));
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
@@ -158,7 +166,15 @@ function NavBar({ onOpenFocusTimer }) {
           <Link to="/weekly">{t('weekly')}</Link>
           <Link to="/monthly">{t('monthly')}</Link>
           <Link to="/today">{t('today')}</Link>
-          <Link to="/email-sync">{t('emailSync')}</Link>
+          <Link
+            to="/email-sync"
+            className={`outlook-badge${outlookConnected ? ' outlook-badge--connected' : ' outlook-badge--disconnected'}`}
+            title={outlookConnected ? 'Outlook connected' : 'Connect Outlook'}
+          >
+            <span>✉</span>
+            <span>Outlook</span>
+            <span className={`outlook-badge-dot${outlookConnected ? ' outlook-badge-dot--on' : ''}`} />
+          </Link>
           <Link to="/google-calendar">📅 {t('googleCalendar')}</Link>
         </div>
       </div>
