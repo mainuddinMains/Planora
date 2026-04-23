@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
@@ -80,6 +80,7 @@ function PrivateRoute({ children }) {
 }
 
 function NavBar({ onOpenFocusTimer }) {
+  const navigate = useNavigate();
   const { user, logout, showWelcome } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const [isDark, toggleDark] = useDarkMode();
@@ -125,6 +126,8 @@ function NavBar({ onOpenFocusTimer }) {
   };
 
   const handleAddTask = () => {
+    localStorage.setItem('openAddTask', 'true');
+    navigate('/tasks');
     localStorage.setItem('openAddTask', 'true');
     window.dispatchEvent(new Event('openAddTask'));
   };
@@ -264,6 +267,7 @@ function NavBar({ onOpenFocusTimer }) {
 function AppRoutes() {
   const { user, showWelcome } = useAuth();
   const { t } = useLanguage();
+  const location = useLocation();
   const [showAI, setShowAI] = useState(false);
   const [showFocusTimer, setShowFocusTimer] = useState(false);
 
@@ -274,6 +278,17 @@ function AppRoutes() {
     window.addEventListener('openChatbot', handleOpenChatbot);
     return () => window.removeEventListener('openChatbot', handleOpenChatbot);
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/tasks' && localStorage.getItem('openAddTask') === 'true') {
+      const id = setTimeout(() => {
+        window.dispatchEvent(new Event('openAddTask'));
+        localStorage.removeItem('openAddTask');
+      }, 0);
+
+      return () => clearTimeout(id);
+    }
+  }, [location.pathname]);
 
   return (
     <>
