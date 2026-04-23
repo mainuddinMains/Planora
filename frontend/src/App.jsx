@@ -13,7 +13,6 @@ import WeeklyCalendar from './pages/WeeklyCalendar';
 import MonthlyCalendar from './pages/MonthlyCalendar';
 import TodayPlan from './pages/TodayPlan';
 import EmailSync from './pages/EmailSync';
-import LandingPage from './pages/LandingPage';
 import './App.css';
 
 function OAuthCallback() {
@@ -74,16 +73,10 @@ function OAuthCallback() {
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
-
+  
   if (loading) return <div className="page">Loading...</div>;
-
+  
   return user ? children : <Navigate to="/login" replace={true} />;
-}
-
-function HomeRoute() {
-  const { user, loading } = useAuth();
-  if (loading) return <div className="page">Loading...</div>;
-  return user ? <Dashboard /> : <LandingPage />;
 }
 
 function NavBar({ onOpenFocusTimer }) {
@@ -313,7 +306,9 @@ function AppRoutes() {
         <Route path="/email-sync" element={
           <PrivateRoute><EmailSync /></PrivateRoute>
         } />
-        <Route path="/" element={<HomeRoute />} />
+        <Route path="/" element={
+          <PrivateRoute><Dashboard /></PrivateRoute>
+        } />
         <Route path="/tasks" element={
           <PrivateRoute><Tasks /></PrivateRoute>
         } />
