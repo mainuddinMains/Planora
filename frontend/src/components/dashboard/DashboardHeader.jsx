@@ -28,21 +28,6 @@ function DashboardHeader({ user, onAddTask }) {
         <button type="button" className="btn-primary" onClick={onAddTask}>
           {t('addTask')}
         </button>
-        <Link to="/tasks" className="btn-secondary dashboard-quick-link">
-          {t('tasks')}
-        </Link>
-        <Link to="/today" className="btn-secondary dashboard-quick-link">
-          {t('today')}
-        </Link>
-        <Link to="/weekly" className="btn-secondary dashboard-quick-link">
-          {t('weekly')}
-        </Link>
-        <Link to="/monthly" className="btn-secondary dashboard-quick-link">
-          {t('monthly')}
-        </Link>
-        <Link to="/email-sync" className="btn-secondary dashboard-quick-link">
-          {t('emailSync')}
-        </Link>
       </div>
     </header>
   );
