@@ -132,7 +132,7 @@ function MonthlyCalendar() {
   const handleUnscheduleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    setIsUnscheduleDragOver(true);
+    setIsUnscheduleDragOver((prev) => (prev ? prev : true));
   };
 
   const handleUnscheduleDragLeave = () => {
