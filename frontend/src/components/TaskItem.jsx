@@ -1,7 +1,17 @@
 import React from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 
-function TaskItem({ task, onToggle, onEdit, onDelete, density = 'comfortable' }) {
+function TaskItem({
+  task,
+  onToggle = () => {},
+  onEdit = () => {},
+  onDelete = () => {},
+  density = 'comfortable',
+  readOnly = false,
+  draggable = false,
+  onDragStart,
+  onDragEnd,
+}) {
   const { t } = useLanguage();
   
   const formatDate = (dateString) => {
@@ -35,14 +45,19 @@ function TaskItem({ task, onToggle, onEdit, onDelete, density = 'comfortable' })
       className={`task-item ${task.is_completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''} ${
         density === 'compact' ? 'task-item--compact' : ''
       }`}
+      draggable={draggable && !task.is_completed}
+      onDragStart={draggable ? (e) => onDragStart?.(e, task) : undefined}
+      onDragEnd={draggable ? onDragEnd : undefined}
     >
-      <div className="task-checkbox">
-        <input
-          type="checkbox"
-          checked={task.is_completed}
-          onChange={() => onToggle(task.id, !task.is_completed)}
-        />
-      </div>
+      {!readOnly && (
+        <div className="task-checkbox">
+          <input
+            type="checkbox"
+            checked={task.is_completed}
+            onChange={() => onToggle(task.id, !task.is_completed)}
+          />
+        </div>
+      )}
 
       <div className="task-content">
         <div className="task-header">
@@ -73,14 +88,16 @@ function TaskItem({ task, onToggle, onEdit, onDelete, density = 'comfortable' })
         </div>
       </div>
 
-      <div className="task-actions">
-        <button onClick={() => onEdit(task)} className="btn-icon" title={t('edit')}>
-          ✏️
-        </button>
-        <button onClick={() => onDelete(task.id)} className="btn-icon" title={t('delete')}>
-          🗑️
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="task-actions">
+          <button onClick={() => onEdit(task)} className="btn-icon" title={t('edit')}>
+            ✏️
+          </button>
+          <button onClick={() => onDelete(task.id)} className="btn-icon" title={t('delete')}>
+            🗑️
+          </button>
+        </div>
+      )}
     </div>
   );
 }
