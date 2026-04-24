@@ -15,7 +15,7 @@ function Dashboard() {
 
   return (
     <div className="page dashboard">
-      <DashboardHeader user={user} onAddTask={workspace.openAddForm} />
+      <DashboardHeader user={user} />
 
       <DashboardStats tasks={workspace.insightTasks || []} />
 
