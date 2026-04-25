@@ -2,7 +2,7 @@ import React from 'react';
 import MiniTaskList from '../MiniTaskList';
 import { useLanguage } from '../../hooks/useLanguage';
 
-function FocusTasks({ tasks = [], onToggle, onEdit, onDelete, limit = 5 }) {
+function FocusTasks({ tasks = [], onToggle, onEdit, onDelete, onReschedule, limit = 5 }) {
   const { t } = useLanguage();
 
   return (
@@ -17,6 +17,7 @@ function FocusTasks({ tasks = [], onToggle, onEdit, onDelete, limit = 5 }) {
           onToggle={onToggle}
           onEdit={onEdit}
           onDelete={onDelete}
+          onReschedule={onReschedule}
           limit={limit}
           prioritize
           density="compact"
