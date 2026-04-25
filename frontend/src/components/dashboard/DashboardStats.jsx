@@ -44,7 +44,7 @@ function DashboardStats({ tasks = [] }) {
       if (task.priority === 'high') highOpen += 1;
       if (!task.due_date) return;
       const due = new Date(task.due_date);
-      if (due < now) {
+      if (due < todayStart) {
         overdue += 1;
         return;
       }
