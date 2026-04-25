@@ -9,6 +9,7 @@ function TaskList({
   onToggle,
   onEdit,
   onDelete,
+  onReschedule,
   filters = {},
   setFilters,
   courses = [],
@@ -85,6 +86,12 @@ function TaskList({
   );
 
   const priorityValue = filters.priority || 'all';
+
+  const hasActiveFilter = useMemo(() =>
+    (filters.priority && filters.priority !== 'all') ||
+    filters.course_id ||
+    filters.completed !== undefined,
+  [filters]);
 
   return (
     <div className="task-list-container">
@@ -176,7 +183,17 @@ function TaskList({
       <div className={`task-list ${density === 'compact' ? 'task-list--compact' : ''}`}>
         {tasks.length === 0 ? (
           <div className="empty-state">
-            {searchInput.trim() ? t('noTasksMatch') : t('noTasks')}
+            {searchInput.trim() ? (
+              t('noTasksMatch')
+            ) : hasActiveFilter ? (
+              <div className="empty-state-caught-up">
+                <div className="empty-state-check">✓</div>
+                <strong>{t('allCaughtUp')}</strong>
+                <p>{t('noTasksForFilter')}</p>
+              </div>
+            ) : (
+              t('noTasks')
+            )}
           </div>
         ) : (
           tasks.map((task) => (
@@ -186,6 +203,7 @@ function TaskList({
               onToggle={onToggle}
               onEdit={onEdit}
               onDelete={onDelete}
+              onReschedule={onReschedule}
               density={density}
             />
           ))
