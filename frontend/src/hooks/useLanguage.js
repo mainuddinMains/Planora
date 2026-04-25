@@ -136,6 +136,11 @@ const translations = {
     landingAlreadyHaveAccount: 'Already have an account?',
     landingSignIn: 'Sign In',
     landingNavBrand: 'Planora',
+    rescheduleToTomorrow: 'Reschedule to Tomorrow',
+    taskRescheduled: 'Task rescheduled to tomorrow!',
+    lateBadge: 'Late',
+    allCaughtUp: 'All caught up!',
+    noTasksForFilter: 'Nothing here — this filter is clear.',
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', monthly: 'Mensual', today: 'Hoy',
