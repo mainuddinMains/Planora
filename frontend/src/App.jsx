@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
@@ -161,21 +161,24 @@ function NavBar({ onOpenFocusTimer }) {
           <Link to="/">Planora</Link>
         </div>
         <div className="nav-links">
-          <Link to="/">{t('dashboard')}</Link>
-          <Link to="/tasks">{t('tasks')}</Link>
-          <Link to="/weekly">{t('weekly')}</Link>
-          <Link to="/monthly">{t('monthly')}</Link>
-          <Link to="/today">{t('today')}</Link>
-          <Link
+          <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('dashboard')}</NavLink>
+          <NavLink to="/tasks" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('tasks')}</NavLink>
+          <NavLink to="/weekly" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('weekly')}</NavLink>
+          <NavLink to="/monthly" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('monthly')}</NavLink>
+          <NavLink to="/today" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('today')}</NavLink>
+          <NavLink
             to="/email-sync"
-            className={`outlook-badge${outlookConnected ? ' outlook-badge--connected' : ' outlook-badge--disconnected'}`}
+            className={({ isActive }) => [
+              'outlook-badge',
+              outlookConnected ? 'outlook-badge--connected' : 'outlook-badge--disconnected',
+              isActive ? 'nav-link--active' : '',
+            ].join(' ')}
             title={outlookConnected ? 'Outlook connected' : 'Connect Outlook'}
           >
-            <span>✉</span>
-            <span>Outlook</span>
+            <span className="outlook-badge-icon">📧</span>
             <span className={`outlook-badge-dot${outlookConnected ? ' outlook-badge-dot--on' : ''}`} />
-          </Link>
-          <Link to="/google-calendar">📅 {t('googleCalendar')}</Link>
+          </NavLink>
+          <NavLink to="/google-calendar" className={({ isActive }) => isActive ? 'nav-link--active' : undefined} title={t('googleCalendar')}>📅</NavLink>
         </div>
       </div>
       <div className="nav-right">
