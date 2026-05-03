@@ -775,8 +775,9 @@ nav a.nav-link--active {
 }
 
 .outlook-badge-icon {
-  font-size: 1.1rem;
+  font-size: 1.35rem;
   line-height: 1;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.15));
 }
 
 .outlook-badge--connected {
@@ -784,7 +785,7 @@ nav a.nav-link--active {
 }
 
 .outlook-badge--disconnected {
-  opacity: 0.45;
+  opacity: 0.9;
 }
 
 .outlook-badge-dot {
