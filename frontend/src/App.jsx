@@ -1,15 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
-import { connectMicrosoftAccount } from './api';
+import { connectMicrosoftAccount, connectGoogleCalendar, loginWithGoogle } from './api';
+import { useDarkMode } from './hooks/useDarkMode';
 import Login from './pages/Login';
+import GoogleCalendar from './pages/GoogleCalendar';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import WeeklyCalendar from './pages/WeeklyCalendar';
+import MonthlyCalendar from './pages/MonthlyCalendar';
 import TodayPlan from './pages/TodayPlan';
 import EmailSync from './pages/EmailSync';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 function OAuthCallback() {
@@ -18,18 +22,48 @@ function OAuthCallback() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && localStorage.getItem('google_auth_pending') === 'true' && !processed) {
+      localStorage.removeItem('google_auth_pending');
+      loginWithGoogle(code, state)
+        .then(() => {
+          setProcessed(true);
+          window.location.replace('/');
+        })
+        .catch(err => {
+          console.error('Google sign-in error:', err);
+          setProcessed(true);
+          const message = encodeURIComponent(err.message || 'Failed to sign in with Google.');
+          window.location.replace(`/login?google_error=${message}`);
+        });
+      return;
+    }
 
     if (code && localStorage.getItem('microsoft_oauth_pending') === 'true' && !processed) {
       localStorage.removeItem('microsoft_oauth_pending');
       window.history.replaceState({}, document.title, '/email-sync');
-      
       connectMicrosoftAccount(code)
         .then(() => {
           setProcessed(true);
           window.dispatchEvent(new Event('microsoftAccountConnected'));
         })
         .catch(err => {
-          console.error('OAuth error:', err);
+          console.error('Microsoft OAuth error:', err);
+          setProcessed(true);
+        });
+    }
+
+    if (code && localStorage.getItem('google_calendar_pending') === 'true' && !processed) {
+      localStorage.removeItem('google_calendar_pending');
+      window.history.replaceState({}, document.title, '/google-calendar');
+      connectGoogleCalendar(code)
+        .then(() => {
+          setProcessed(true);
+          window.dispatchEvent(new Event('googleCalendarConnected'));
+        })
+        .catch(err => {
+          console.error('Google OAuth error:', err);
           setProcessed(true);
         });
     }
@@ -40,15 +74,23 @@ function OAuthCallback() {
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
-  
+
   if (loading) return <div className="page">Loading...</div>;
-  
+
   return user ? children : <Navigate to="/login" replace={true} />;
 }
 
+function HomeRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="page">Loading...</div>;
+  return user ? <Dashboard /> : <LandingPage />;
+}
+
 function NavBar({ onOpenFocusTimer }) {
+  const navigate = useNavigate();
   const { user, logout, showWelcome } = useAuth();
   const { t, language, setLanguage } = useLanguage();
+  const [isDark, toggleDark] = useDarkMode();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
@@ -92,6 +134,8 @@ function NavBar({ onOpenFocusTimer }) {
 
   const handleAddTask = () => {
     localStorage.setItem('openAddTask', 'true');
+    navigate('/tasks');
+    localStorage.setItem('openAddTask', 'true');
     window.dispatchEvent(new Event('openAddTask'));
   };
 
@@ -112,14 +156,19 @@ function NavBar({ onOpenFocusTimer }) {
           <Link to="/">{t('dashboard')}</Link>
           <Link to="/tasks">{t('tasks')}</Link>
           <Link to="/weekly">{t('weekly')}</Link>
+          <Link to="/monthly">{t('monthly')}</Link>
           <Link to="/today">{t('today')}</Link>
           <Link to="/email-sync">{t('emailSync')}</Link>
+          <Link to="/google-calendar">📅 {t('googleCalendar')}</Link>
         </div>
       </div>
       <div className="nav-right">
         <button className="btn-add-task" onClick={handleAddTask}>{t('addTask')}</button>
         <button className="btn-chatbot" onClick={handleOpenChatbot} title={t('aiAssistant')}>🤖</button>
         <button className="btn-focus" onClick={onOpenFocusTimer} title={t('focusMode')}>🎯</button>
+        <button className="btn-dark-toggle" onClick={toggleDark} title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+          {isDark ? '☀️' : '🌙'}
+        </button>
         
         <div className="language-selector" ref={languageRef}>
           <button 
@@ -225,6 +274,7 @@ function NavBar({ onOpenFocusTimer }) {
 function AppRoutes() {
   const { user, showWelcome } = useAuth();
   const { t } = useLanguage();
+  const location = useLocation();
   const [showAI, setShowAI] = useState(false);
   const [showFocusTimer, setShowFocusTimer] = useState(false);
 
@@ -235,6 +285,17 @@ function AppRoutes() {
     window.addEventListener('openChatbot', handleOpenChatbot);
     return () => window.removeEventListener('openChatbot', handleOpenChatbot);
   }, []);
+
+  useEffect(() => {
+    if (location.pathname === '/tasks' && localStorage.getItem('openAddTask') === 'true') {
+      const id = setTimeout(() => {
+        window.dispatchEvent(new Event('openAddTask'));
+        localStorage.removeItem('openAddTask');
+      }, 0);
+
+      return () => clearTimeout(id);
+    }
+  }, [location.pathname]);
 
   return (
     <>
@@ -248,20 +309,25 @@ function AppRoutes() {
       <FocusTimer isOpen={showFocusTimer} onClose={() => setShowFocusTimer(false)} />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" replace={true} /> : <Login />} />
+        <Route path="/google-callback" element={<div className="page">Loading...</div>} />
         <Route path="/email-sync" element={
           <PrivateRoute><EmailSync /></PrivateRoute>
         } />
-        <Route path="/" element={
-          <PrivateRoute><Dashboard /></PrivateRoute>
-        } />
+        <Route path="/" element={<HomeRoute />} />
         <Route path="/tasks" element={
           <PrivateRoute><Tasks /></PrivateRoute>
         } />
         <Route path="/weekly" element={
           <PrivateRoute><WeeklyCalendar /></PrivateRoute>
         } />
+        <Route path="/monthly" element={
+          <PrivateRoute><MonthlyCalendar /></PrivateRoute>
+        } />
         <Route path="/today" element={
           <PrivateRoute><TodayPlan /></PrivateRoute>
+        } />
+        <Route path="/google-calendar" element={
+          <PrivateRoute><GoogleCalendar /></PrivateRoute>
         } />
       </Routes>
     </>
@@ -269,6 +335,12 @@ function AppRoutes() {
 }
 
 function App() {
+  // Apply dark mode on initial render before any component mounts
+  const saved = localStorage.getItem('darkMode');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved !== null ? saved === 'true' : prefersDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
   return (
     <Router>
       <LanguageProvider>

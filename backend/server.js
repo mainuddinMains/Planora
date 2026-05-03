@@ -1,50 +1,28 @@
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const authRoutes = require('./routes/auth');
-const taskRoutes = require('./routes/tasks');
-const courseRoutes = require('./routes/courses');
-const recommendationRoutes = require('./routes/recommendations');
-const notificationRoutes = require('./routes/notifications');
+const app = require('./app');
+const { ensureSchema } = require('./db/ensureSchema');
 const { startNotificationJobs } = require('./jobs/notificationJob');
-
-let emailSourceRoutes = null;
-let emailSyncRoutes = null;
-let microsoftAuthRoutes = null;
 let startEmailSyncJobs = null;
 
 try {
-  emailSourceRoutes = require('./routes/emailSources');
-  emailSyncRoutes = require('./routes/emailSync');
-  microsoftAuthRoutes = require('./routes/microsoftAuth');
   ({ startEmailSyncJobs } = require('./jobs/emailSyncJob'));
 } catch (error) {
   console.warn(
     `[EmailSync] Optional email sync modules disabled: ${error.message}`
   );
 }
+const PORT = process.env.PORT || 5001;
 
-const app = express();
+async function startServer() {
+  await ensureSchema();
 
-const devOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
-const envOrigins = (process.env.CORS_ORIGINS || '')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 
-const allowedOrigins =
-  process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL].filter(Boolean)
-    : [...new Set([...devOrigins, ...envOrigins])];
-
-const devIpOriginRegex = /^http:\/\/(\d{1,3}\.){3}\d{1,3}:3000$/;
-
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin) {
-        return callback(null, true);
+    if (process.env.NODE_ENV !== 'test') {
+      startNotificationJobs();
+      if (startEmailSyncJobs) {
+        startEmailSyncJobs();
       }
 
       const isAllowedDevIp =
@@ -98,4 +76,12 @@ app.listen(PORT, () => {
       startEmailSyncJobs();
     }
   }
+});
+    }
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });

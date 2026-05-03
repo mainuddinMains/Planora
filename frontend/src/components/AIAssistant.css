@@ -259,3 +259,77 @@
   background: rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.8);
 }
+
+/* AI Assistant dark mode */
+[data-theme="dark"] .ai-assistant {
+  background: #1e293b;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .ai-messages {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .ai-message.ai .message-content,
+[data-theme="dark"] .ai-message.typing .message-content {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .ai-input {
+  border-top: 1px solid #334155;
+  background: #1e293b;
+}
+
+[data-theme="dark"] .ai-input input {
+  background: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .ai-input input::placeholder {
+  color: #64748b;
+}
+
+[data-theme="dark"] .ai-select option {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+/* AI Settings dark mode */
+[data-theme="dark"] .ai-settings-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+[data-theme="dark"] .ai-provider-card {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .ai-provider-card.connected {
+  background: rgba(125, 211, 232, 0.06);
+  border-color: #7dd3e8;
+}
+
+[data-theme="dark"] .provider-details h3 {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .ai-settings-footer {
+  border-top-color: #334155;
+}
+
+[data-theme="dark"] .api-key-note {
+  background: rgba(125, 211, 232, 0.08);
+}
+
+[data-theme="dark"] .api-key-input input {
+  background: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .btn-cancel {
+  background: #475569;
+  color: #f1f5f9;
+}
