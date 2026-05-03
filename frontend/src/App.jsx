@@ -163,8 +163,7 @@ function NavBar({ onOpenFocusTimer }) {
         <div className="nav-links">
           <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('dashboard')}</NavLink>
           <NavLink to="/tasks" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('tasks')}</NavLink>
-          <NavLink to="/weekly" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('weekly')}</NavLink>
-          <NavLink to="/monthly" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('monthly')}</NavLink>
+<NavLink to="/monthly" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('monthly')}</NavLink>
           <NavLink to="/today" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('today')}</NavLink>
           <NavLink
             to="/email-sync"
