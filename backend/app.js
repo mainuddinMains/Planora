@@ -8,6 +8,7 @@ const courseRoutes = require('./routes/courses');
 const recommendationRoutes = require('./routes/recommendations');
 const notificationRoutes = require('./routes/notifications');
 const googleCalendarRoutes = require('./routes/googleCalendar');
+const aiRoutes = require('./routes/ai');
 
 let emailSourceRoutes = null;
 let emailSyncRoutes = null;
@@ -76,6 +77,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/google-calendar', googleCalendarRoutes);
+app.use('/api/ai', aiRoutes);
 
 if (emailSourceRoutes && emailSyncRoutes) {
   app.use('/api/email_sources', emailSourceRoutes);

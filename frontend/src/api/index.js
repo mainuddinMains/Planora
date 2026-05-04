@@ -298,11 +298,30 @@ export async function deleteGoogleCalendarEvent(eventId) {
 }
 
 export async function exportTaskToGoogleCalendar(taskId) {
-
   return fetchApi(`/google-calendar/export-task/${taskId}`, { method: 'POST' });
+}
 
-  return fetchApi(`/google-calendar/export-task/${taskId}`, {method: 'POST'});
+/** Public: no cookie required. */
+export async function getAiStatus() {
+  const response = await fetch(`${API_BASE_URL}/ai/status`);
+  const contentType = response.headers.get('content-type') || '';
+  const rawBody = await response.text();
+  let data = null;
+  if (rawBody && contentType.includes('application/json')) {
+    data = JSON.parse(rawBody);
+  }
+  if (!response.ok) {
+    throw new Error(data?.error || `AI status failed (${response.status})`);
+  }
+  return data || {};
+}
 
+/** Authenticated chat via server-side OpenAI or OpenRouter (see backend env). */
+export async function postAiChat({ message, taskSummary = '', messages = [] }) {
+  return fetchApi('/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify({ message, taskSummary, messages }),
+  });
 }
 
 export const TaskListSortMethod = Object.freeze({

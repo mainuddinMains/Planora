@@ -136,6 +136,8 @@ const translations = {
     landingAlreadyHaveAccount: 'Already have an account?',
     landingSignIn: 'Sign In',
     landingNavBrand: 'Planora',
+    serverAi: 'Server AI',
+    serverAiDesc: 'Uses OpenAI or OpenRouter keys configured on the server',
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', monthly: 'Mensual', today: 'Hoy',
@@ -247,6 +249,8 @@ const translations = {
     densityCompact: 'Compacta',
     tasksPageSubtitle: 'Busca, filtra y gestiona todas tus tareas.',
     taskLibrary: 'Biblioteca de tareas',
+    serverAi: 'IA del servidor',
+    serverAiDesc: 'Usa claves OpenAI u OpenRouter en el servidor',
   },
   fr: {
     dashboard: 'Tableau de Bord', tasks: 'Tâches', weekly: 'Hebdomadaire', monthly: 'Mensuel', today: "Aujourd'hui",

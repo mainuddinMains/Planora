@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getTasks } from '../api';
+import { getTasks, getAiStatus, postAiChat } from '../api';
 import AISettings from './AISettings';
 import { useLanguage } from '../hooks/useLanguage';
 import './AIAssistant.css';
@@ -15,14 +15,6 @@ function AIAssistant({ isOpen, onClose }) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 380, height: 500 });
-
-  useEffect(() => {
-    if (isOpen) {
-      getTasks({})
-        .then(data => setTasksLocal(data || []))
-        .catch(() => setTasksLocal([]));
-    }
-  }, [isOpen]);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [showAISettings, setShowAISettings] = useState(false);
@@ -31,11 +23,32 @@ function AIAssistant({ isOpen, onClose }) {
     const saved = localStorage.getItem('aiConnectedAccounts');
     return saved ? JSON.parse(saved) : {};
   });
+  const [serverAiAvailable, setServerAiAvailable] = useState(false);
   const messagesEndRef = useRef(null);
   const resizeRef = useRef(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      getTasks({})
+        .then((data) => setTasksLocal(data || []))
+        .catch(() => setTasksLocal([]));
+      getAiStatus()
+        .then((s) => setServerAiAvailable(Boolean(s?.configured)))
+        .catch(() => setServerAiAvailable(false));
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!serverAiAvailable && selectedAI === 'server') {
+      setSelectedAI('local');
+    }
+  }, [serverAiAvailable, selectedAI]);
+
   const aiOptions = [
     { id: 'local', name: 'Planora AI', icon: '🤖', desc: 'Built-in assistant' },
+    ...(serverAiAvailable
+      ? [{ id: 'server', name: t('serverAi'), icon: '☁️', desc: t('serverAiDesc') }]
+      : []),
     { id: 'openrouter', name: 'OpenRouter', icon: '🔀', desc: '100+ AI models' },
     { id: 'openai', name: 'ChatGPT', icon: '🤖', desc: 'OpenAI account' },
     { id: 'anthropic', name: 'Claude', icon: '🧠', desc: 'Anthropic account' },
@@ -43,10 +56,6 @@ function AIAssistant({ isOpen, onClose }) {
     { id: 'github', name: 'GitHub Models', icon: '🐙', desc: 'GitHub account' },
     { id: 'microsoft', name: 'Azure', icon: '🔷', desc: 'Microsoft account' },
   ];
-
-  const availableAIs = aiOptions.filter(ai => 
-    ai.id === 'local' || connectedAccounts[ai.id]
-  );
 
   useEffect(() => {
     localStorage.setItem('aiConnectedAccounts', JSON.stringify(connectedAccounts));
@@ -264,7 +273,32 @@ Be concise, encouraging, and helpful with scheduling, productivity, and academic
     setLoading(true);
 
     try {
-      if (selectedAI === 'openrouter') {
+      if (selectedAI === 'server') {
+        const incomplete = tasks.filter((x) => !x.is_completed);
+        const taskSummary =
+          incomplete.length === 0
+            ? 'No open tasks.'
+            : incomplete
+                .slice(0, 12)
+                .map(
+                  (x) =>
+                    `- ${x.title} (due: ${x.due_date ? new Date(x.due_date).toLocaleDateString() : 'none'}, priority: ${x.priority || 'n/a'})`
+                )
+                .join('\n');
+        const messagesForApi = updatedMessages
+          .slice(0, -1)
+          .filter((m) => m.text)
+          .map((m) => ({
+            role: m.type === 'user' ? 'user' : 'assistant',
+            content: m.text,
+          }));
+        const { reply } = await postAiChat({
+          message: userMessage,
+          taskSummary,
+          messages: messagesForApi,
+        });
+        setMessages((prev) => [...prev, { type: 'ai', text: reply }]);
+      } else if (selectedAI === 'openrouter') {
         const response = await callOpenRouter(userMessage, updatedMessages);
         setMessages(prev => [...prev, { type: 'ai', text: response }]);
       } else {
@@ -318,9 +352,16 @@ Be concise, encouraging, and helpful with scheduling, productivity, and academic
               <option 
                 key={ai.id} 
                 value={ai.id}
-                disabled={ai.id !== 'local' && !connectedAccounts[ai.id]}
+                disabled={
+                  ai.id !== 'local' &&
+                  ai.id !== 'server' &&
+                  !connectedAccounts[ai.id]
+                }
               >
-                {ai.icon} {ai.name} {!connectedAccounts[ai.id] && ai.id !== 'local' ? '(Not connected)' : ''}
+                {ai.icon} {ai.name}{' '}
+                {!connectedAccounts[ai.id] && ai.id !== 'local' && ai.id !== 'server'
+                  ? '(Not connected)'
+                  : ''}
               </option>
             ))}
           </select>
