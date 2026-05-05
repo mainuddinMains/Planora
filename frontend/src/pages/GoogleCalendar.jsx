@@ -57,7 +57,7 @@ function isSameDay(a, b) {
 }
 
 // ── Event Modal ──────────────────────────────────────────────────────────────
-function EventModal({ event, defaultDate, onSave, onDelete, onClose, saving, deleting }) {
+function EventModal({ event, defaultDate, onSave, onDelete, onClose, saving, deleting, saveError }) {
   const isNew = !event?.id;
   const isAllDay = event ? !!event.start?.date : false;
 
@@ -79,7 +79,10 @@ function EventModal({ event, defaultDate, onSave, onDelete, onClose, saving, del
   const [colorId, setColorId]   = useState(event?.colorId || '7');
 
   const buildPayload = () => {
-    const base = { summary: title, description: desc, location, colorId };
+    const base = { summary: title };
+    if (desc.trim())     base.description = desc.trim();
+    if (location.trim()) base.location    = location.trim();
+    if (colorId)         base.colorId     = colorId;
     if (allDay) {
       base.start = { date: startDT };
       base.end   = { date: endDT || startDT };
@@ -195,6 +198,14 @@ function EventModal({ event, defaultDate, onSave, onDelete, onClose, saving, del
             </div>
           </div>
 
+          {/* Error */}
+          {saveError && (
+            <div style={{ padding: '0.6rem 0.9rem', borderRadius: '8px', background: '#fff5f5',
+              border: '1px solid #fc8181', color: '#c53030', fontSize: '0.85rem' }}>
+              ❌ {saveError}
+            </div>
+          )}
+
           {/* Actions */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
             {!isNew ? (
@@ -234,6 +245,7 @@ function GoogleCalendar() {
   const [message, setMessage]     = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [modal, setModal]         = useState(null); // null | { mode: 'create'|'edit', event?, date? }
+  const [saveError, setSaveError] = useState('');
   const [saving, setSaving]       = useState(false);
   const [deleting, setDeleting]   = useState(false);
   const [now, setNow]             = useState(new Date());
@@ -296,13 +308,17 @@ function GoogleCalendar() {
 
   const handleSave = async (payload, eventId) => {
     setSaving(true);
+    setSaveError('');
     try {
       if (eventId) await updateGoogleCalendarEvent(eventId, payload);
       else         await createGoogleCalendarEvent(payload);
       setModal(null);
+      setSaveError('');
       setMessage(eventId ? '✅ Event updated!' : '✅ Event created!');
       loadEvents(currentDate.getFullYear(), currentDate.getMonth() + 1);
-    } catch (e) { setMessage('❌ ' + e.message); }
+    } catch (e) {
+      setSaveError(e.message);
+    }
     finally { setSaving(false); }
   };
 
@@ -501,9 +517,10 @@ function GoogleCalendar() {
           defaultDate={modal.date}
           onSave={handleSave}
           onDelete={handleDelete}
-          onClose={() => setModal(null)}
+          onClose={() => { setModal(null); setSaveError(''); }}
           saving={saving}
           deleting={deleting}
+          saveError={saveError}
         />
       )}
     </div>
