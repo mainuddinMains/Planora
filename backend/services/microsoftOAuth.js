@@ -3,7 +3,7 @@ const axios = require('axios');
 const CLIENT_ID = process.env.MICROSOFT_CLIENT_ID;
 const CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET;
 const TENANT_ID = process.env.MICROSOFT_TENANT_ID || 'common';
-const REDIRECT_URI = 'http://localhost:3000';
+const REDIRECT_URI = process.env.MICROSOFT_REDIRECT_URI || 'http://localhost:3000';
 
 const AUTHORITY = `https://login.microsoftonline.com/${TENANT_ID}`;
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0';

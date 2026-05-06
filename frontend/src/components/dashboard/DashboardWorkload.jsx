@@ -2,6 +2,34 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getWorkload } from '../../api';
 import { useLanguage } from '../../hooks/useLanguage';
 
+function ProgressRing({ completed, total }) {
+  const radius = 20;
+  const stroke = 4;
+  const circumference = 2 * Math.PI * radius;
+  const pct = total > 0 ? Math.min(completed / total, 1) : 0;
+  const offset = circumference * (1 - pct);
+
+  return (
+    <div className="workload-progress-ring" title={`${completed} / ${total} tasks completed this week`}>
+      <svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">
+        <circle cx="26" cy="26" r={radius} fill="none" stroke="var(--border, #e5e7eb)" strokeWidth={stroke} />
+        <circle
+          cx="26" cy="26" r={radius}
+          fill="none"
+          stroke="var(--accent, #6366f1)"
+          strokeWidth={stroke}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          transform="rotate(-90 26 26)"
+          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+        />
+      </svg>
+      <span className="workload-progress-ring-pct">{Math.round(pct * 100)}%</span>
+    </div>
+  );
+}
+
 function weekBounds() {
   const now = new Date();
   const start = new Date(now);
@@ -16,7 +44,7 @@ function weekBounds() {
 /**
  * Summarizes /recommendations/workload rows: { date, task_count, total_duration, tasks }
  */
-function DashboardWorkload() {
+function DashboardWorkload({ weekCompleted = 0, weekTotal = 0 }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
@@ -77,7 +105,10 @@ function DashboardWorkload() {
       className="dashboard-workload-card"
       aria-label={t('thisWeekWorkload')}
     >
-      <h3 className="dashboard-workload-title">{t('thisWeekWorkload')}</h3>
+      <div className="dashboard-workload-header">
+        <h3 className="dashboard-workload-title">{t('thisWeekWorkload')}</h3>
+        <ProgressRing completed={weekCompleted} total={weekTotal} />
+      </div>
       {loading && <p className="dashboard-workload-muted">{t('loading')}</p>}
       {err && (
         <div className="dashboard-workload-error-wrap">

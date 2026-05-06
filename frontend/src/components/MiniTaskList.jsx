@@ -41,6 +41,7 @@ function MiniTaskList({
   onToggle,
   onEdit,
   onDelete,
+  onReschedule,
   limit,
   prioritize = true,
   readOnly = false,
@@ -75,6 +76,7 @@ function MiniTaskList({
             onToggle={onToggle || NOOP}
             onEdit={onEdit || NOOP}
             onDelete={onDelete || NOOP}
+            onReschedule={onReschedule}
             density={density}
             readOnly={readOnly}
             draggable={draggable}

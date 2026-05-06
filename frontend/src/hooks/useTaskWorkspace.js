@@ -96,6 +96,21 @@ export function useTaskWorkspace(initialFilters = {}) {
     }
   };
 
+  const handleReschedule = useCallback(async (task) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0);
+    try {
+      await editTask(task.id, { due_date: tomorrow.toISOString() });
+      refreshInsights();
+      setMessage({ type: 'success', text: t('taskRescheduled') });
+      clearMessageLater();
+    } catch (err) {
+      setMessage({ type: 'error', text: t('failedToUpdate') + err.message });
+      clearMessageLater();
+    }
+  }, [editTask, refreshInsights, t, clearMessageLater]);
+
   const startEdit = (task) => {
     setEditingTask(task);
     setShowForm(false);
@@ -126,6 +141,7 @@ export function useTaskWorkspace(initialFilters = {}) {
     handleEditTask,
     handleDeleteTask,
     handleToggleComplete,
+    handleReschedule,
     startEdit,
     cancelEdit,
   };

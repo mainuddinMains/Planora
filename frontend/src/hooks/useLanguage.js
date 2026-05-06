@@ -136,6 +136,11 @@ const translations = {
     landingAlreadyHaveAccount: 'Already have an account?',
     landingSignIn: 'Sign In',
     landingNavBrand: 'Planora',
+    rescheduleToTomorrow: 'Reschedule to Tomorrow',
+    taskRescheduled: 'Task rescheduled to tomorrow!',
+    lateBadge: 'Late',
+    allCaughtUp: 'All caught up!',
+    noTasksForFilter: 'Nothing here — this filter is clear.',
   },
   es: {
     dashboard: 'Panel', tasks: 'Tareas', weekly: 'Semanal', monthly: 'Mensual', today: 'Hoy',
@@ -246,7 +251,31 @@ const translations = {
     densityComfortable: 'Cómoda',
     densityCompact: 'Compacta',
     tasksPageSubtitle: 'Busca, filtra y gestiona todas tus tareas.',
-    taskLibrary: 'Biblioteca de tareas',
+    taskLibrary: 'Biblioteca de tareas', groupBy: 'Agrupar por',
+    landingHeroHeadline: 'Domina tu semestre, no solo tu horario.',
+    landingHeroSubheadline: 'Priorización de tareas con IA que analiza tus plazos, evalúa tu carga de trabajo y te entrega un plan de acción diario — automáticamente.',
+    landingGetStarted: 'Comenzar gratis',
+    landingHowItWorksTitle: 'Cómo funciona',
+    landingHowItWorksSubtitle: 'Tres pasos hacia la claridad académica',
+    landingStep1Title: 'Sincroniza',
+    landingStep1Desc: 'Conecta tu cuenta universitaria de Microsoft o Google. Planora lee tus correos y calendario para importar automáticamente tareas y fechas límite.',
+    landingStep2Title: 'Analiza',
+    landingStep2Desc: 'Nuestra IA escanea cada fecha límite, pondera la urgencia frente al esfuerzo y calcula una puntuación de prioridad — para que siempre sepas qué importa más.',
+    landingStep3Title: 'Enfócate',
+    landingStep3Desc: 'Recibe un plan diario estructurado con tus tareas más importantes clasificadas y listas. Nunca más pierdas una fecha límite.',
+    landingGlobalTitle: 'Diseñado para estudiantes de todo el mundo',
+    landingGlobalSubtitle: 'Planora habla tu idioma — 42 idiomas compatibles, incluido diseño de derecha a izquierda para árabe, urdu y más.',
+    landingGlobalLanguages: '42 Idiomas',
+    landingGlobalRTL: 'Compatible RTL',
+    landingGlobalStudents: 'Estudiantes en todo el mundo',
+    landingGlobalFeat1: 'Soporte RTL para árabe, hebreo y urdu',
+    landingGlobalFeat2: 'Hindi, Tamil, Telugu y 12 escrituras índicas más',
+    landingGlobalFeat3: 'Idiomas europeos, asiáticos y cirílicos',
+    landingBuiltAt: 'Desarrollado en Saint Louis University',
+    landingBuiltAtDesc: 'Un proyecto final de ingeniería de software — diseñado para resolver problemas reales de estudiantes reales.',
+    landingAlreadyHaveAccount: '¿Ya tienes una cuenta?',
+    landingSignIn: 'Iniciar sesión',
+    landingNavBrand: 'Planora',
   },
   fr: {
     dashboard: 'Tableau de Bord', tasks: 'Tâches', weekly: 'Hebdomadaire', monthly: 'Mensuel', today: "Aujourd'hui",
@@ -1289,10 +1318,7 @@ export function LanguageProvider({ children }) {
   }, [language]);
 
   const t = (key) => {
-    if (language === 'en') {
-      return translations.en[key] || key;
-    }
-    return translations.es[key] || translations.en[key] || key;
+    return translations[language]?.[key] || translations.en[key] || key;
   };
 
   return (

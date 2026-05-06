@@ -117,6 +117,13 @@ router.get('/events', requireAuth, async (req, res) => {
   }
 });
 
+function googleErrMsg(err) {
+  return err.response?.data?.error?.message
+    || err.response?.data?.error
+    || err.message
+    || 'Unknown error';
+}
+
 // POST /api/google-calendar/events — create a new event
 router.post('/events', requireAuth, async (req, res) => {
   try {
@@ -127,7 +134,7 @@ router.post('/events', requireAuth, async (req, res) => {
     res.json(event);
   } catch (err) {
     console.error('Google create event error:', err.response?.data || err.message);
-    res.status(500).json({ error: err.message || 'Failed to create event' });
+    res.status(500).json({ error: googleErrMsg(err) });
   }
 });
 
@@ -141,7 +148,7 @@ router.put('/events/:eventId', requireAuth, async (req, res) => {
     res.json(event);
   } catch (err) {
     console.error('Google update event error:', err.response?.data || err.message);
-    res.status(500).json({ error: err.message || 'Failed to update event' });
+    res.status(500).json({ error: googleErrMsg(err) });
   }
 });
 
@@ -155,7 +162,7 @@ router.delete('/events/:eventId', requireAuth, async (req, res) => {
     res.json({ message: 'Event deleted' });
   } catch (err) {
     console.error('Google delete event error:', err.response?.data || err.message);
-    res.status(500).json({ error: err.message || 'Failed to delete event' });
+    res.status(500).json({ error: googleErrMsg(err) });
   }
 });
 
