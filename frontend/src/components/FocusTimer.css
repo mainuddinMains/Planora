@@ -12,6 +12,11 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  user-select: none;
+}
+
+.focus-timer-header:active {
+  cursor: grabbing;
 }
 
 .focus-timer-header h2 {
