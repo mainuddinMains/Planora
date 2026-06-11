@@ -14,6 +14,54 @@ function FocusTimer({ isOpen, onClose }) {
   const [showNotificationPermission, setShowNotificationPermission] = useState(false);
   const timerRef = useRef(null);
   const wasRunningRef = useRef(false);
+  const [modalPos, setModalPos] = useState({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart = useRef({ mouseX: 0, mouseY: 0, posX: 0, posY: 0 });
+  const wasDragged = useRef(false);
+
+  useEffect(() => {
+    if (isOpen) setModalPos({ x: 0, y: 0 });
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging.current) return;
+      wasDragged.current = true;
+      setModalPos({
+        x: dragStart.current.posX + e.clientX - dragStart.current.mouseX,
+        y: dragStart.current.posY + e.clientY - dragStart.current.mouseY,
+      });
+    };
+    const handleMouseUp = () => {
+      isDragging.current = false;
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  const handleDragStart = (e) => {
+    isDragging.current = true;
+    wasDragged.current = false;
+    dragStart.current = {
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      posX: modalPos.x,
+      posY: modalPos.y,
+    };
+    e.preventDefault();
+  };
+
+  const handleOverlayClick = () => {
+    if (wasDragged.current) {
+      wasDragged.current = false;
+      return;
+    }
+    onClose();
+  };
 
   useEffect(() => {
     if (Notification.permission === 'default') {
@@ -116,11 +164,15 @@ function FocusTimer({ isOpen, onClose }) {
   const progress = ((duration * 60 - timeLeft) / (duration * 60)) * 100;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="focus-timer-modal" onClick={e => e.stopPropagation()}>
-        <div className="focus-timer-header">
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div
+        className="focus-timer-modal"
+        onClick={e => e.stopPropagation()}
+        style={{ transform: `translate(${modalPos.x}px, ${modalPos.y}px)` }}
+      >
+        <div className="focus-timer-header" onMouseDown={handleDragStart} style={{ cursor: 'grab' }}>
           <h2>🎯 {t('focusMode')}</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose} style={{ cursor: 'pointer' }}>×</button>
         </div>
 
         {showNotificationPermission && (
