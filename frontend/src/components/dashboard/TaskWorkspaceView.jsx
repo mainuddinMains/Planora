@@ -25,6 +25,7 @@ function TaskWorkspaceView({
     handleEditTask,
     handleDeleteTask,
     handleToggleComplete,
+    handleReschedule,
     startEdit,
     cancelEdit,
   } = workspace;
@@ -106,6 +107,7 @@ function TaskWorkspaceView({
           onToggle={handleToggleComplete}
           onEdit={startEdit}
           onDelete={handleDeleteTask}
+          onReschedule={handleReschedule}
           filters={filters}
           setFilters={setFilters}
           courses={courses}

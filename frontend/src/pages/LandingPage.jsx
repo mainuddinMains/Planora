@@ -161,18 +161,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* ── University Attribution ───────────────────────── */}
-      <section className="landing-attribution">
-        <div className="landing-attribution-inner">
-          <div className="landing-slu-badge">
-            <span className="landing-slu-icon" aria-hidden="true">🎓</span>
-            <div>
-              <div className="landing-slu-title">{t('landingBuiltAt')}</div>
-              <div className="landing-slu-desc">{t('landingBuiltAtDesc')}</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── Footer ──────────────────────────────────────── */}
       <footer className="landing-footer">

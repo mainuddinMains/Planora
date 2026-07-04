@@ -44,7 +44,7 @@ function DashboardStats({ tasks = [] }) {
       if (task.priority === 'high') highOpen += 1;
       if (!task.due_date) return;
       const due = new Date(task.due_date);
-      if (due < now) {
+      if (due < todayStart) {
         overdue += 1;
         return;
       }
@@ -54,7 +54,7 @@ function DashboardStats({ tasks = [] }) {
     return { overdue, dueToday, highOpen, completedWeek };
   }, [tasks]);
 
-  const cards = [
+  const metrics = [
     { value: stats.overdue, label: t('statOverdue'), warn: stats.overdue > 0 },
     { value: stats.dueToday, label: t('statDueToday') },
     { value: stats.highOpen, label: t('statHighPriority') },
@@ -62,15 +62,15 @@ function DashboardStats({ tasks = [] }) {
   ];
 
   return (
-    <div className="dashboard-stats" role="region" aria-label={t('dashboardStatsAria')}>
-      {cards.map((c) => (
-        <div
-          key={c.label}
-          className={`dashboard-stat-card ${c.warn ? 'dashboard-stat-card--warn' : ''}`}
-        >
-          <span className="dashboard-stat-value">{c.value}</span>
-          <span className="dashboard-stat-label">{c.label}</span>
-        </div>
+    <div className="metric-ribbon" role="region" aria-label={t('dashboardStatsAria')}>
+      {metrics.map((m, i) => (
+        <React.Fragment key={m.label}>
+          {i > 0 && <span className="metric-divider" aria-hidden="true" />}
+          <span className={`metric-item${m.warn ? ' metric-item--warn' : ''}`}>
+            <span className="metric-value">{m.value}</span>
+            <span className="metric-label">{m.label}</span>
+          </span>
+        </React.Fragment>
       ))}
     </div>
   );

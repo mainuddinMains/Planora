@@ -29,9 +29,6 @@ services:
       DATABASE_URL: postgresql://planora:planora_password@postgres:5432/planora
       JWT_SECRET: your_super_secure_jwt_secret_change_in_production
       NODE_ENV: development
-      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID}
-      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET}
-      MICROSOFT_TENANT_ID: ${MICROSOFT_TENANT_ID}
     ports:
       - "5001:5001"
     depends_on:
@@ -47,7 +44,7 @@ services:
       dockerfile: Dockerfile
     container_name: planora-frontend
     environment:
-      REACT_APP_API_URL: http://backend:5001/api
+      REACT_APP_API_URL: http://localhost:5001/api
     ports:
       - "3000:3000"
     depends_on:

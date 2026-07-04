@@ -13,16 +13,6 @@ function Tasks() {
 
   return (
     <div className="page tasks-page">
-      <header className="tasks-page-header">
-        <div>
-          <h1>{t('tasks')}</h1>
-          <p className="tasks-page-subtitle">{t('tasksPageSubtitle')}</p>
-        </div>
-        <button type="button" className="btn-primary" onClick={workspace.openAddForm}>
-          {t('addTask')}
-        </button>
-      </header>
-
       <TaskWorkspaceView workspace={workspace} titleKey="taskLibrary" />
     </div>
   );

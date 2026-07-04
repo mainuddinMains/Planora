@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LanguageProvider, useLanguage, languages } from './hooks/useLanguage';
 import { NotificationBell, AIAssistant, FocusTimer } from './components';
-import { connectMicrosoftAccount, connectGoogleCalendar, loginWithGoogle } from './api';
+import { connectMicrosoftAccount, connectGoogleCalendar, loginWithGoogle, getMicrosoftStatus } from './api';
 import { useDarkMode } from './hooks/useDarkMode';
 import Login from './pages/Login';
 import GoogleCalendar from './pages/GoogleCalendar';
@@ -96,6 +96,7 @@ function NavBar({ onOpenFocusTimer }) {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [outlookConnected, setOutlookConnected] = useState(null);
   const profileRef = useRef(null);
   const languageRef = useRef(null);
 
@@ -116,6 +117,13 @@ function NavBar({ onOpenFocusTimer }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    getMicrosoftStatus()
+      .then(data => setOutlookConnected(data?.connected ?? false))
+      .catch(() => setOutlookConnected(false));
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
@@ -153,13 +161,23 @@ function NavBar({ onOpenFocusTimer }) {
           <Link to="/">Planora</Link>
         </div>
         <div className="nav-links">
-          <Link to="/">{t('dashboard')}</Link>
-          <Link to="/tasks">{t('tasks')}</Link>
-          <Link to="/weekly">{t('weekly')}</Link>
-          <Link to="/monthly">{t('monthly')}</Link>
-          <Link to="/today">{t('today')}</Link>
-          <Link to="/email-sync">{t('emailSync')}</Link>
-          <Link to="/google-calendar">📅 {t('googleCalendar')}</Link>
+          <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('dashboard')}</NavLink>
+          <NavLink to="/tasks" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('tasks')}</NavLink>
+<NavLink to="/monthly" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('monthly')}</NavLink>
+          <NavLink to="/today" className={({ isActive }) => isActive ? 'nav-link--active' : undefined}>{t('today')}</NavLink>
+          <NavLink
+            to="/email-sync"
+            className={({ isActive }) => [
+              'outlook-badge',
+              outlookConnected ? 'outlook-badge--connected' : 'outlook-badge--disconnected',
+              isActive ? 'nav-link--active' : '',
+            ].join(' ')}
+            title={outlookConnected ? 'Outlook connected' : 'Connect Outlook'}
+          >
+            <span className="outlook-badge-icon">📧</span>
+            <span className={`outlook-badge-dot${outlookConnected ? ' outlook-badge-dot--on' : ''}`} />
+          </NavLink>
+          <NavLink to="/google-calendar" className={({ isActive }) => isActive ? 'nav-link--active' : undefined} title={t('googleCalendar')}>📅</NavLink>
         </div>
       </div>
       <div className="nav-right">
