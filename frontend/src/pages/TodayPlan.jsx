@@ -109,7 +109,7 @@ function TodayPlan() {
         <div className="stat-card">
           <span className="stat-value">
             {getTotalDuration() >= 60
-              ? `${Math.round(getTotalDuration() / 60)}h ${getTotalDuration() % 60}m`
+              ? `${Math.floor(getTotalDuration() / 60)}h ${getTotalDuration() % 60}m`
               : `${getTotalDuration()}m`
             }
           </span>
@@ -157,7 +157,7 @@ function TodayPlan() {
         ) : (
           groupedTaskLists(recommendations, groupBy).map((taskList, index, list) =>
             (
-              <div className="recommendations-list" style={{"marginBottom": "20px"}}>
+              <div key={taskList.key !== undefined ? String(taskList.key) : index} className="recommendations-list" style={{"marginBottom": "20px"}}>
                 <PriorityTaskList taskList={taskList} method={sortBy} reverse={sortDescending} index={index} handleComplete={handleComplete} getPriorityClass={getPriorityClass} getScoreLabel={getScoreLabel}/>
                 {/*{index < list.length - 1 && (<hr style={{marginTop: "10px", marginBottom: "10px"}}/>)}*/}
               </div>

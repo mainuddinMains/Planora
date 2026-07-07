@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS task_tags (
 
 CREATE INDEX idx_tasks_user_id ON tasks(user_id);
 CREATE INDEX idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX idx_tasks_user_completed ON tasks(user_id, is_completed);
 CREATE INDEX idx_courses_user_id ON courses(user_id);
 CREATE INDEX idx_tags_user_id ON tags(user_id);
 
@@ -67,6 +68,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+CREATE INDEX idx_notifications_task_user ON notifications(task_id, user_id);
 
 -- Email sources per user (Outlook IMAP)
 CREATE TABLE IF NOT EXISTS email_sources (

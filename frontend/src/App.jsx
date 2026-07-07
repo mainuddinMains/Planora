@@ -143,8 +143,6 @@ function NavBar({ onOpenFocusTimer }) {
   const handleAddTask = () => {
     localStorage.setItem('openAddTask', 'true');
     navigate('/tasks');
-    localStorage.setItem('openAddTask', 'true');
-    window.dispatchEvent(new Event('openAddTask'));
   };
 
   const handleOpenChatbot = () => {
