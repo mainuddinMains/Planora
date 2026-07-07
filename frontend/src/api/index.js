@@ -51,8 +51,6 @@ export async function register(email, password, name) {
 }
 
 export async function login(email, password) {
-  console.log('API URL being used:', API_BASE_URL);
-  console.log('Full URL:', `${API_BASE_URL}/auth/login`);
   return fetchApi('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
@@ -168,7 +166,6 @@ export async function deleteNotification(id) {
 }
 
 export async function getEmailSources() {
-  console.log('API_BASE_URL:', API_BASE_URL);
   return fetchApi('/email_sources');
 }
 
@@ -298,11 +295,7 @@ export async function deleteGoogleCalendarEvent(eventId) {
 }
 
 export async function exportTaskToGoogleCalendar(taskId) {
-
   return fetchApi(`/google-calendar/export-task/${taskId}`, { method: 'POST' });
-
-  return fetchApi(`/google-calendar/export-task/${taskId}`, {method: 'POST'});
-
 }
 
 export const TaskListSortMethod = Object.freeze({
