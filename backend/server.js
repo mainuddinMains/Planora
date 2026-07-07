@@ -1,4 +1,13 @@
 require('dotenv').config();
+
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set. Server cannot start.');
+  process.exit(1);
+}
+if (process.env.JWT_SECRET === 'your_super_secure_jwt_secret_change_in_production') {
+  console.warn('WARNING: JWT_SECRET is set to the default placeholder value. Change it before deploying.');
+}
+
 const app = require('./app');
 const { ensureSchema } = require('./db/ensureSchema');
 const { startNotificationJobs } = require('./jobs/notificationJob');
