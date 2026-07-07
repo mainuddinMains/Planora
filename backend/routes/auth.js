@@ -11,12 +11,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  // Use 'secure: true' only in production (requires HTTPS)
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   path: '/',
-  maxAge: 7 * 24 * 60 * 60 * 1000
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 };
 const GOOGLE_STATE_COOKIE = 'google_oauth_state';
 const GOOGLE_STATE_COOKIE_OPTIONS = {
@@ -81,8 +79,6 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-
     const existingUser = await db.query(
       'SELECT id FROM users WHERE email = $1',
       [normalizedEmail]
@@ -96,7 +92,6 @@ router.post('/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
 
     const result = await db.query(
-      'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name',
       'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name, avatar_url',
       [normalizedEmail, passwordHash, name]
     );
@@ -118,19 +113,12 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Debug Log: Remove once fixed
-    console.log(`Attempting login for: ${normalizedEmail}`);
-
     const result = await db.query(
-      'SELECT id, email, password_hash, name FROM users WHERE email = $1',
       'SELECT id, email, password_hash, name, avatar_url FROM users WHERE email = $1',
       [normalizedEmail]
     );
 
     if (result.rows.length === 0) {
-      console.log('Login Fail: User not found in database');
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -144,7 +132,6 @@ router.post('/login', async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
     if (!isValidPassword) {
-      console.log('Login Fail: Password mismatch');
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -259,8 +246,6 @@ router.post('/google/login', async (req, res) => {
     await client.query('COMMIT');
     sendAuthResponse(res, 200, 'Google sign-in successful', user);
   } catch (error) {
-    console.error('Login error details:', error);
-    res.status(500).json({ error: 'Login failed due to server error' });
     if (client) {
       await client.query('ROLLBACK');
     }
