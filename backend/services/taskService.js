@@ -1,5 +1,36 @@
 const db = require('../db');
 
+async function initializeTaskTable() {
+  const query = `
+    CREATE TABLE IF NOT EXISTS tasks (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      course_id INTEGER,
+      title TEXT NOT NULL,
+      description TEXT,
+      due_date TIMESTAMP,
+      duration INTEGER DEFAULT 60,
+      priority TEXT DEFAULT 'medium',
+      is_completed BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  try {
+    await db.query(query);
+
+    await db.query(`ALTER TABLE tasks ADD COLUMN IF NOT EXISTS attachment_data TEXT;`);
+    await db.query(`ALTER TABLE tasks ADD COLUMN IF NOT EXISTS attachment_name TEXT;`);
+
+    console.log('Tasks table and attachment columns checked/created successfully.');
+  } catch (err) {
+    console.error('Error initializing tasks table:', err);
+  }
+}
+
+// Run initialization
+initializeTaskTable();
+
 async function createTask(userId, taskData) {
   const { course_id, title, description, due_date, duration, priority } = taskData;
   

@@ -1,5 +1,30 @@
 const db = require('../db');
 
+
+async function initializeNotificationTable() {
+  const query = `
+    CREATE TABLE IF NOT EXISTS notifications (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      task_id INTEGER,
+      type TEXT DEFAULT 'reminder',
+      title TEXT NOT NULL,
+      message TEXT,
+      is_read BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  try {
+    await db.query(query);
+    console.log('Notifications table checked/created successfully.');
+  } catch (err) {
+    console.error('Error initializing notifications table:', err);
+  }
+}
+
+// Run initialization
+initializeNotificationTable();
+
 async function createNotification(userId, notificationData) {
   const { task_id, type, title, message } = notificationData;
 
@@ -24,6 +49,8 @@ async function getNotificationsByUser(userId, filters = {}) {
   query += ' ORDER BY created_at DESC';
 
   if (filters.limit) {
+    // Note: Always use parameterized queries for LIMIT if the value comes from users
+    // But for a quick fix, parseInt ensures it's a number.
     query += ` LIMIT ${parseInt(filters.limit)}`;
   }
 
