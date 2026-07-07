@@ -26,16 +26,19 @@ async function checkUpcomingDeadlines() {
     const tasks = tasksResult.rows;
     console.log(`[NotificationJob] Found ${tasks.length} upcoming tasks`);
 
-    for (const task of tasks) {
-      const existingNotification = await db.query(
-        `SELECT id FROM notifications
-         WHERE task_id = $1 AND user_id = $2 AND created_at > $3`,
-        [task.id, task.user_id, cooldownWindow]
-      );
+    if (tasks.length === 0) return;
 
-      if (existingNotification.rows.length > 0) {
-        continue;
-      }
+    const taskIds = tasks.map(t => t.id);
+    const existingResult = await db.query(
+      `SELECT task_id FROM notifications
+       WHERE task_id = ANY($1::int[]) AND created_at > $2`,
+      [taskIds, cooldownWindow]
+    );
+    const notifiedTaskIds = new Set(existingResult.rows.map(r => r.task_id));
+
+    const inserts = [];
+    for (const task of tasks) {
+      if (notifiedTaskIds.has(task.id)) continue;
 
       const dueDate = new Date(task.due_date);
       const hoursUntilDue = Math.round((dueDate - now) / (1000 * 60 * 60));
@@ -51,14 +54,16 @@ async function checkUpcomingDeadlines() {
 
       const title = `Task Reminder: ${task.title}`;
       const message = `"${task.title}" is ${urgencyText}.${task.course_name ? ` Course: ${task.course_name}` : ''}`;
+      inserts.push({ userId: task.user_id, taskId: task.id, title, message });
+    }
 
+    for (const n of inserts) {
       await db.query(
         `INSERT INTO notifications (user_id, task_id, type, title, message)
          VALUES ($1, $2, 'reminder', $3, $4)`,
-        [task.user_id, task.id, title, message]
+        [n.userId, n.taskId, n.title, n.message]
       );
-
-      console.log(`[NotificationJob] Created notification for task "${task.title}" (user: ${task.user_id})`);
+      console.log(`[NotificationJob] Created notification for task id=${n.taskId} (user: ${n.userId})`);
     }
 
     console.log('[NotificationJob] Notification check complete');
@@ -88,16 +93,18 @@ async function checkOverdueTasks() {
     const tasks = overdueResult.rows;
     console.log(`[NotificationJob] Found ${tasks.length} recently overdue tasks`);
 
-    for (const task of tasks) {
-      const existingNotification = await db.query(
-        `SELECT id FROM notifications
-         WHERE task_id = $1 AND user_id = $2 AND type = 'overdue'`,
-        [task.id, task.user_id]
-      );
+    if (tasks.length === 0) return;
 
-      if (existingNotification.rows.length > 0) {
-        continue;
-      }
+    const taskIds = tasks.map(t => t.id);
+    const existingResult = await db.query(
+      `SELECT task_id FROM notifications
+       WHERE task_id = ANY($1::int[]) AND type = 'overdue'`,
+      [taskIds]
+    );
+    const notifiedTaskIds = new Set(existingResult.rows.map(r => r.task_id));
+
+    for (const task of tasks) {
+      if (notifiedTaskIds.has(task.id)) continue;
 
       const title = `Overdue: ${task.title}`;
       const message = `"${task.title}" is now overdue. It was due on ${new Date(task.due_date).toLocaleString()}.${task.course_name ? ` Course: ${task.course_name}` : ''}`;
@@ -108,7 +115,7 @@ async function checkOverdueTasks() {
         [task.user_id, task.id, title, message]
       );
 
-      console.log(`[NotificationJob] Created overdue notification for task "${task.title}"`);
+      console.log(`[NotificationJob] Created overdue notification for task id=${task.id}`);
     }
   } catch (error) {
     console.error('[NotificationJob] Error checking overdue tasks:', error);
