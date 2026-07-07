@@ -79,22 +79,23 @@ async function getTodayRecommendations(userId, limit = 10) {
 
 async function getWorkloadDistribution(userId, startDate, endDate) {
   const result = await db.query(
-    `SELECT 
-       DATE(due_date) as date,
+    `SELECT
+       DATE(t.due_date) as date,
        COUNT(*) as task_count,
-       SUM(duration) as total_duration,
+       SUM(t.duration) as total_duration,
        array_agg(json_build_object(
-         'id', id,
-         'title', title,
-         'duration', duration,
-         'priority', priority,
-         'course_name', (SELECT name FROM courses WHERE id = course_id)
+         'id', t.id,
+         'title', t.title,
+         'duration', t.duration,
+         'priority', t.priority,
+         'course_name', c.name
        )) as tasks
-     FROM tasks
-     WHERE user_id = $1 
-       AND is_completed = FALSE
-       AND due_date BETWEEN $2 AND $3
-     GROUP BY DATE(due_date)
+     FROM tasks t
+     LEFT JOIN courses c ON c.id = t.course_id
+     WHERE t.user_id = $1
+       AND t.is_completed = FALSE
+       AND t.due_date BETWEEN $2 AND $3
+     GROUP BY DATE(t.due_date)
      ORDER BY date`,
     [userId, startDate, endDate]
   );
